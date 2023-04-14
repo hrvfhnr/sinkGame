@@ -1,29 +1,48 @@
 import * as Phaser from 'phaser';
+import Controls from './controls';
+import Sponge from './entities/sponge';
+import Cs from './Cs';
 
-const SCREEN_SIZE = { WIDTH: 1000, HEIGHT: 750 };
+export default class WashGame extends Phaser.Scene {
 
-export default class Demo extends Phaser.Scene
-{
+    controls: Controls;
+    sponge: Sponge;
+
     constructor () {
-        super('demo');
+        super('WashGame');
     }
 
     preload () {
-        this.load.image('logo', 'assets/phaser3-logo.png');
-        this.load.image('libs', 'assets/libs.png');
-        this.load.glsl('bundle', 'assets/plasma-bundle.glsl.js');
-        this.load.glsl('stars', 'assets/starfields.glsl.js');
+        //this.load.image('logo', 'assets/phaser3-logo.png');
+        //this.load.image('libs', 'assets/libs.png');
+        //this.load.glsl('bundle', 'assets/plasma-bundle.glsl.js');
+        //this.load.glsl('stars', 'assets/starfields.glsl.js');
+    
+        this.load.image('background', 'assets/bg.png');
+        this.load.image('sponge', 'assets/sponge.png');
+        this.load.image('plate_7', 'assets/plate_7.png');
+
+
     }
 
     create () {
-        this.add.shader('RGB Shift Field', 0, 0, SCREEN_SIZE.WIDTH, SCREEN_SIZE.HEIGHT).setOrigin(0);
+        //this.add.shader('RGB Shift Field', 0, 0, SCREEN_SIZE.WIDTH, SCREEN_SIZE.HEIGHT).setOrigin(0);
+        //this.add.shader('Plasma', 0, 492, SCREEN_SIZE.WIDTH, 172).setOrigin(0);
+        this.add.image(Cs.SCREEN_SIZE.WIDTH / 2, Cs.SCREEN_SIZE.HEIGHT / 2, 'background');
 
-        this.add.shader('Plasma', 0, 492, SCREEN_SIZE.WIDTH, 172).setOrigin(0);
+        const plate = this.add.sprite( 650, 400, 'plate_7');
 
-        this.add.image(SCREEN_SIZE.WIDTH / 2, SCREEN_SIZE.HEIGHT / 2, 'libs');
+        this.sponge = new Sponge(this);
+        this.add.existing(this.sponge);
 
-        const logo = this.add.image(SCREEN_SIZE.WIDTH / 2, 70, 'logo');
+        console.log('sponge : ' + this.sponge.x + ' , ' + this.sponge.y);
 
+        this.controls = new Controls();
+        this.controls.init(this, this.sponge);
+
+        
+
+        /*
         this.tweens.add({
             targets: logo,
             y: 350,
@@ -32,6 +51,7 @@ export default class Demo extends Phaser.Scene
             yoyo: true,
             repeat: -1
         })
+        */
     }
 }
 
@@ -40,7 +60,7 @@ const config = {
     backgroundColor: '#125555',
     width: 1000,
     height: 750,
-    scene: Demo
+    scene: WashGame
 };
 
 const game = new Phaser.Game(config);
