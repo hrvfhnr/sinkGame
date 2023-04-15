@@ -20,9 +20,17 @@ export default class WashGame extends Phaser.Scene {
     
         this.load.image('background', 'assets/bg.png');
         this.load.image('sponge', 'assets/sponge.png');
-        this.load.image('plate_7', 'assets/plate_7.png');
+        this.load.image('stain_cropper', 'assets/stain_cropper.png');
 
-
+        //plates
+        for (let i = 0; i < 7; i++)
+            this.load.image('plate_' + i, 'assets/plate_' + i + '.png');
+        
+        //stains
+        for (const color of Cs.STAINS) {
+            for (let i = 0; i < color.count; i++)
+                this.load.image(`stain_${String(color.color)}_${i}`, `assets/stains/stain_${String(color.color)}_${i}.png`);
+        }
     }
 
     create () {
@@ -30,17 +38,23 @@ export default class WashGame extends Phaser.Scene {
         //this.add.shader('Plasma', 0, 492, SCREEN_SIZE.WIDTH, 172).setOrigin(0);
         this.add.image(Cs.SCREEN_SIZE.WIDTH / 2, Cs.SCREEN_SIZE.HEIGHT / 2, 'background');
 
-        const plate = this.add.sprite( 650, 400, 'plate_7');
+        
+
+        const plate = this.add.sprite( 650, 400, 'plate_2');
 
         this.sponge = new Sponge(this);
         this.add.existing(this.sponge);
-
-        console.log('sponge : ' + this.sponge.x + ' , ' + this.sponge.y);
 
         this.controls = new Controls();
         this.controls.init(this, this.sponge);
 
         
+        let stainy = 0;
+        for (const color of Cs.STAINS) {
+            stainy += 130;
+            for (let i = 0; i < color.count; i++)
+                this.add.image(i * 150, stainy, `stain_${String(color.color)}_${i}`);
+        }
 
         /*
         this.tweens.add({

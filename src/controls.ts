@@ -1,4 +1,4 @@
-import { Sponge } from "./entities/sponge";
+import Sponge from "./entities/sponge";
 import WashGame from "./game";
 
 export default class Controls {
