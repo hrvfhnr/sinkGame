@@ -1,7 +1,7 @@
 import * as Phaser from 'phaser';
 import Controls from './controls';
 import Sponge from './entities/sponge';
-import Cs from './Cs';
+import Cs from './cs';
 
 export default class WashGame extends Phaser.Scene {
 
@@ -22,6 +22,15 @@ export default class WashGame extends Phaser.Scene {
         this.load.image('sponge', 'assets/sponge.png');
         this.load.image('stain_cropper', 'assets/stain_cropper.png');
 
+        // DEV TEST
+        this.load.image('brush', 'assets/brush.png');
+        this.load.image('brush_40', 'assets/brush_40.png');
+        this.load.image('brush_70', 'assets/brush_70.png');
+        this.load.image('brush_eps_60', 'assets/brush_eps_60.png');
+        this.load.image('brush_eps_75', 'assets/brush_eps_75.png');
+        this.load.image('brush_eps_85', 'assets/brush_eps_85.png');
+        //
+
         //plates
         for (let i = 0; i < 7; i++)
             this.load.image('plate_' + i, 'assets/plate_' + i + '.png');
@@ -39,7 +48,6 @@ export default class WashGame extends Phaser.Scene {
         this.add.image(Cs.SCREEN_SIZE.WIDTH / 2, Cs.SCREEN_SIZE.HEIGHT / 2, 'background');
 
         
-
         const plate = this.add.sprite( 650, 400, 'plate_2');
 
         this.sponge = new Sponge(this);
@@ -55,6 +63,18 @@ export default class WashGame extends Phaser.Scene {
             for (let i = 0; i < color.count; i++)
                 this.add.image(i * 150, stainy, `stain_${String(color.color)}_${i}`);
         }
+
+
+        const rt = this.add.renderTexture(650, 400, 512, 512);
+        const mask = rt.createBitmapMask();
+        //mask.invertAlpha = true;
+        const plate6 = this.add.sprite( 650, 400, 'plate_6');
+        plate6.setMask(mask);
+
+        this.input.on('pointermove', function(pointer) {
+            if (pointer.isDown)
+                rt.draw('brush_eps_75', pointer.x, pointer.y);
+        }, this);
 
         /*
         this.tweens.add({

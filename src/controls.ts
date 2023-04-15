@@ -14,9 +14,9 @@ export default class Controls {
         this.sponge = sponge;
         this.input = this.game.input;
 
-        this.input.on('pointerdown', this.getLock, this.game);
-        this.input.on('pointermove', this.onMouseMove, this.game);
-        this.input.keyboard.on('keydown-Q', this.releaseLock, this.game);
+        //this.input.on('pointerdown', this.getLock, this.game);
+        //this.input.on('pointermove', this.onMouseMove, this.game);
+        //this.input.keyboard.on('keydown-Q', this.releaseLock, this.game);
         
         this.input.manager.events.on('pointerlockchange', event => {
             //### TODO    

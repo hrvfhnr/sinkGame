@@ -1,6 +1,6 @@
 import * as Phaser from 'phaser';
 import WashGame from "../game";
-import Cs from '../Cs';
+import Cs from '../cs';
 
 export default class Sponge extends Phaser.GameObjects.Sprite {
     game: WashGame;

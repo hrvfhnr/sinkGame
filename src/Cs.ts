@@ -1,4 +1,4 @@
-import { StainColor } from "./Stain";
+import { StainColor } from "./types";
 
 export default class Cs {
 
