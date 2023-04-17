@@ -1,13 +1,19 @@
 import * as Phaser from 'phaser';
 import WashGame from "../game";
-import Cs from '../Cs';
+import Cs from '../cs';
 
 export default class Sponge extends Phaser.GameObjects.Sprite {
     game: WashGame;
 
     constructor (wGame: WashGame) {
-        super(wGame, 350, 500, 'sponge');
+        super(wGame, 350, 375, 'sponge');
         this.game = wGame;
+    }
+
+
+    public setPos(nx: number, ny: number) {
+        this.x = nx;
+        this.y = ny;
     }
 
     public move(dx: number, dy:  number) {
