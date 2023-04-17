@@ -1,6 +1,5 @@
 import * as Phaser from 'phaser';
 import WashGame from "../game";
-//import Cs from '../cs';
 
 export default class CrapZone {
     game: WashGame;

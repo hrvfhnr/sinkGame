@@ -3,8 +3,11 @@ import { StainColor } from "./types";
 export default class Cs {
 
     public static SCREEN_SIZE = { WIDTH: 1000, HEIGHT: 750 };
+    public static PLATE_POS = { X: 650, Y: 350 };
 
-    public static STRAIN_RENDER_SIZE = 512;
+    public static STAIN_RENDER_SIZE = 512;
+    public static STAIN_OFFSET = 50;
+    public static STAIN_SCALE_RATIO = 0.35;
 
     public static STAINS: { color: StainColor, count: number}[] = [
         { color: StainColor.RED, count: 4 },
@@ -22,6 +25,16 @@ export default class Cs {
         { plateId: 5, weight: 5 },
         { plateId: 6, weight: 10 }
     ];
+
+
+    public static LAYER = {
+        BG_0: 0,
+        BG_1: 1,
+        PLATE: 2,
+        SPONGE: 3,
+        FG: 4,
+        FX: 5
+    };
 
 
 }
