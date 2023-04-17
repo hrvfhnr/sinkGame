@@ -12,10 +12,7 @@ export default class Plate {
     sp: Phaser.GameObjects.Container;
     bgPlate: Phaser.GameObjects.Sprite;
     stains: Phaser.GameObjects.RenderTexture;
-    fgPlate: Phaser.GameObjects.Sprite;
     //foam: Phaser.GameObjects.Container;
-
-    scrapeZone: Phaser.GameObjects.RenderTexture;
 
     constructor (wGame: WashGame, plateId: number) {
         this.game = wGame;
@@ -35,13 +32,8 @@ export default class Plate {
 
         this.bgPlate = this.game.add.sprite(plateOffsetInit.x, plateOffsetInit.y, 'plate_' + String(this.plateId));
         this.stains = this.game.add.renderTexture(0, 0, Cs.STAIN_RENDER_SIZE, Cs.STAIN_RENDER_SIZE);
-        this.fgPlate = this.game.add.sprite(plateOffsetInit.x, plateOffsetInit.y, 'plate_' + String(this.plateId));
         
-        this.scrapeZone = this.game.add.renderTexture(0, 0, Cs.STAIN_RENDER_SIZE, Cs.STAIN_RENDER_SIZE);
-        const mask = this.scrapeZone.createBitmapMask();
-        this.fgPlate.setMask(mask);
-
-        this.sp.add([this.bgPlate, this.stains, this.fgPlate]);
+        this.sp.add([this.bgPlate, this.stains]);
     }
 
     public initStains(difficulty: Difficulty) {
@@ -70,7 +62,7 @@ export default class Plate {
             const stainSprite = this.game.add.sprite( -500, -500, `stain_${col}_${colIndex}`);
 
             const scaleSide = Utils.getRandomSide();
-            stainSprite.setScale(1.0 + scaleSide * Math.random() * Cs.STAIN_SCALE_RATIO * (scaleSide > 0 ? 2 : 1));
+            stainSprite.setScale(1.0 + scaleSide * Math.random() * Cs.STAIN_SCALE_RATIO * (scaleSide > 0 ? 3 : 1));
             stainSprite.setRotation(Math.random() * 6.28);
 
             this.stains.draw(stainSprite, pos.x, pos.y);
@@ -90,6 +82,14 @@ export default class Plate {
 
     public resetClean() {
         //TODO
+    }
+
+
+    public scrape(x: number, y: number) {
+        //const localPos = this.scrapeZone.getLocalPoint(x, y);
+        //this.scrapeZone.draw('brush_eps_75', localPos.x, localPos.y);
+        const localPos = this.stains.getLocalPoint(x, y);
+        this.stains.erase('brush_eps_75', localPos.x - 128 / 2, localPos.y - 162 / 2);
     }
 
 

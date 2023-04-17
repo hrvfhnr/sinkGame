@@ -6,7 +6,7 @@ export default class Sponge extends Phaser.GameObjects.Sprite {
     game: WashGame;
 
     constructor (wGame: WashGame) {
-        super(wGame, 0, 0, 'sponge');
+        super(wGame, 350, 375, 'sponge');
         this.game = wGame;
     }
 

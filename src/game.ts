@@ -3,6 +3,7 @@ import Controls from './controls';
 import Sponge from './entities/sponge';
 import Plate from './entities/plate';
 import Cs from './cs';
+import Utils from './Utils';
 
 export default class WashGame extends Phaser.Scene {
 
@@ -17,10 +18,6 @@ export default class WashGame extends Phaser.Scene {
     }
 
     preload () {
-        //this.load.image('logo', 'assets/phaser3-logo.png');
-        //this.load.image('libs', 'assets/libs.png');
-        //this.load.glsl('bundle', 'assets/plasma-bundle.glsl.js');
-        //this.load.glsl('stars', 'assets/starfields.glsl.js');
     
         this.load.image('background', 'assets/bg.png');
         this.load.image('sponge', 'assets/sponge.png');
@@ -52,20 +49,15 @@ export default class WashGame extends Phaser.Scene {
         this.initLayers();
 
         const bg = this.add.image(Cs.SCREEN_SIZE.WIDTH / 2, Cs.SCREEN_SIZE.HEIGHT / 2, 'background');
-
         
-        //const plate = this.add.sprite( 650, 400, 'plate_2');
         this.addToLayer(bg, Cs.LAYER.BG_0);
 
         this.sponge = new Sponge(this);
         this.add.existing(this.sponge);
         this.addToLayer(this.sponge, Cs.LAYER.SPONGE);
 
-        this.controls = new Controls();
-        this.controls.init(this, this.sponge);
-
         this.initPlates();
-
+        
 
         /*
         const rt = this.add.renderTexture(650, 400, 512, 512);
@@ -73,20 +65,15 @@ export default class WashGame extends Phaser.Scene {
 
         const plate6 = this.add.sprite( 650, 400, 'plate_6');
         plate6.setMask(mask);
-
-        this.input.on('pointermove', function(pointer) {
-            if (pointer.isDown)
-                rt.draw('brush_eps_75', pointer.x, pointer.y);
-        }, this);
-        */
-
-        //TODO: test geometry layer (see example)
-
+*/
+        
+        this.controls = new Controls();
+        this.controls.init(this, this.sponge);
 
         /*
         this.tweens.add({
-            targets: logo,
-            y: 350,
+            targets: this.plates[0].sp,
+            y: 600,
             duration: 1500,
             ease: 'Sine.inOut',
             yoyo: true,
@@ -111,12 +98,16 @@ export default class WashGame extends Phaser.Scene {
     private initPlates() {
         this.plates = [];
         for(let i = 0; i < 1; i++) {
-            const plate = new Plate(this, 0);
+            const plate = new Plate(this, Utils.getRandomInt(7));
             plate.setPos(Cs.PLATE_POS.X, Cs.PLATE_POS.Y);
             this.plates.push(plate);
 
             plate.initStains(0);
         }
+    }
+
+    getCurrentPlate(): Plate {
+        return this.plates[0];
     }
 }
 
