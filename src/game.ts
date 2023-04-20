@@ -4,13 +4,17 @@ import Sponge from './entities/sponge';
 import Plate from './entities/plate';
 import Cs from './cs';
 import Utils from './Utils';
-import { Difficulty } from './types';
+import { Difficulty, BrushType } from './types';
 
 export default class WashGame extends Phaser.Scene {
 
     controls: Controls;
     sponge: Sponge;
     plates: Plate[];
+    brushes: {
+        [BrushType.NORMAL_BRUSH]: Phaser.GameObjects.Sprite[];
+        [BrushType.HARD_BRUSH]: Phaser.GameObjects.Sprite[];
+    }
 
     layers: Phaser.GameObjects.Layer[];
 
@@ -43,6 +47,7 @@ export default class WashGame extends Phaser.Scene {
     create () {
 
         this.initLayers();
+        this.initBrushesCollection();
 
         const bg = this.add.image(Cs.SCREEN_SIZE.WIDTH / 2, Cs.SCREEN_SIZE.HEIGHT / 2, 'background');
         
@@ -83,6 +88,26 @@ export default class WashGame extends Phaser.Scene {
         layer.add(o);
     }
 
+
+    private initBrushesCollection() {
+        this.brushes = { [BrushType.NORMAL_BRUSH]: [], [BrushType.HARD_BRUSH]: [] };
+        for (let i = 0; i < 3; i++) {
+            const spNormal = this.add.sprite(0, 0, BrushType.NORMAL_BRUSH);
+            const spHard = this.add.sprite(0, 0, BrushType.HARD_BRUSH);
+            spNormal.setRotation( (1 - i) * 1 );
+            spHard.setRotation( (1 - i) * 2) ;
+
+            this.brushes[BrushType.NORMAL_BRUSH].push(spNormal);
+            this.brushes[BrushType.HARD_BRUSH].push(spHard);
+        }
+    }
+
+
+    public getBrushByType(type: BrushType): Phaser.GameObjects.Sprite {
+        return this.brushes[type][Utils.getRandomInt(this.brushes[type].length)];
+    }
+
+
     private initPlates() {
         this.plates = [];
         for(let i = 0; i < 1; i++) {
@@ -93,6 +118,7 @@ export default class WashGame extends Phaser.Scene {
             plate.initStains(Difficulty.STANDARD);
         }
     }
+
 
     getCurrentPlate(): Plate {
         return this.plates[0];

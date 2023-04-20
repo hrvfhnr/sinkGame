@@ -92,20 +92,20 @@ export default class Plate {
         //this.scrapeZone.draw('brush_eps_75', localPos.x, localPos.y);
         const localPos = this.stains.getLocalPoint(x, y);
 
-        let brush: BrushType = BrushType.NORMAL_BRUSH;
+        let brushType: BrushType = BrushType.NORMAL_BRUSH;
         switch(this.difficulty) {
             case Difficulty.EASY:
-                brush = BrushType.NORMAL_BRUSH;
+                brushType = BrushType.NORMAL_BRUSH;
                 break;
             case Difficulty.STANDARD:
-                brush = (Math.random() < 0.2) ? BrushType.HARD_BRUSH: BrushType.NORMAL_BRUSH;
+                brushType = (Math.random() < 0.2) ? BrushType.HARD_BRUSH: BrushType.NORMAL_BRUSH;
                 break;
             case Difficulty.HARD:
-                brush = (Math.random() < 0.6) ? BrushType.HARD_BRUSH: BrushType.NORMAL_BRUSH;
+                brushType = (Math.random() < 0.6) ? BrushType.HARD_BRUSH: BrushType.NORMAL_BRUSH;
                 break;
         }
 
-        this.stains.erase(brush, localPos.x - 128 / 2, localPos.y - 162 / 2);
+        this.stains.erase(this.game.getBrushByType(brushType), localPos.x, localPos.y);
     }
 
 
