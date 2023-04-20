@@ -4,6 +4,7 @@ import Sponge from './entities/sponge';
 import Plate from './entities/plate';
 import Cs from './cs';
 import Utils from './Utils';
+import { Difficulty } from './types';
 
 export default class WashGame extends Phaser.Scene {
 
@@ -24,14 +25,9 @@ export default class WashGame extends Phaser.Scene {
         this.load.image('stain_cropper', 'assets/stain_cropper.png');
         this.load.image('plate_mask', 'assets/renderTexture_plate_mask.png');
 
-        // DEV TEST
-        this.load.image('brush', 'assets/brush.png');
-        this.load.image('brush_40', 'assets/brush_40.png');
-        this.load.image('brush_70', 'assets/brush_70.png');
-        this.load.image('brush_eps_60', 'assets/brush_eps_60.png');
-        this.load.image('brush_eps_75', 'assets/brush_eps_75.png'); //GOOD ONE
-        this.load.image('brush_eps_85', 'assets/brush_eps_85.png');
-        //
+        //scraping brushes        
+        this.load.image('brush_normal', 'assets/brush_normal.png');
+        this.load.image('brush_hard', 'assets/brush_hard.png');
 
         //plates
         for (let i = 0; i < 7; i++)
@@ -58,14 +54,6 @@ export default class WashGame extends Phaser.Scene {
 
         this.initPlates();
         
-
-        /*
-        const rt = this.add.renderTexture(650, 400, 512, 512);
-        const mask = rt.createBitmapMask();
-
-        const plate6 = this.add.sprite( 650, 400, 'plate_6');
-        plate6.setMask(mask);
-*/
         
         this.controls = new Controls();
         this.controls.init(this, this.sponge);
@@ -102,7 +90,7 @@ export default class WashGame extends Phaser.Scene {
             plate.setPos(Cs.PLATE_POS.X, Cs.PLATE_POS.Y);
             this.plates.push(plate);
 
-            plate.initStains(0);
+            plate.initStains(Difficulty.STANDARD);
         }
     }
 
