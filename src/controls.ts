@@ -39,6 +39,7 @@ export default class Controls {
 
     private getLock(pointer) {
         this.input.mouse.requestPointerLock();
+        this.sponge.active = false;
     }
 
     private releaseLock(event) {
