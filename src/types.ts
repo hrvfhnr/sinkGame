@@ -11,3 +11,9 @@ export enum Difficulty {
     HARD = 2
 }
 
+export enum BrushType {
+    NORMAL_BRUSH = 'brush_normal',
+    HARD_BRUSH = 'brush_hard'
+}
+
+

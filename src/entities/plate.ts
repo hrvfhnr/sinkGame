@@ -2,12 +2,13 @@ import * as Phaser from 'phaser';
 import WashGame from "../game";
 import Cs from '../cs';
 import Utils from '../Utils';
-import { StainColor, Difficulty } from '../types';
+import { StainColor, Difficulty, BrushType } from '../types';
 
 export default class Plate {
 
     game: WashGame;
     plateId: number;
+    difficulty: Difficulty;
     
     sp: Phaser.GameObjects.Container;
     bgPlate: Phaser.GameObjects.Sprite;
@@ -36,10 +37,12 @@ export default class Plate {
         this.sp.add([this.bgPlate, this.stains]);
     }
 
-    public initStains(difficulty: Difficulty) {
+    public initStains(diff: Difficulty) {
         this.stains.clear();
 
-        const stainCount = 8 + Utils.getRandomInt(4) + difficulty * 4;
+        this.difficulty = diff;
+
+        const stainCount = 8 + Utils.getRandomInt(4) + this.difficulty * 4;
 
         const allColors = [StainColor.RED, StainColor.BEIGE, StainColor.BROWN, StainColor.YELLOW];
         const colorTochoose = Math.min(2 + Utils.getRandomInt(2), allColors.length);
@@ -70,7 +73,6 @@ export default class Plate {
         }
 
         this.stains.erase('stain_cropper', 0, 0);
-
     }
 
     private getRandomStainPosition(): {x : number, y: number} {
@@ -89,7 +91,21 @@ export default class Plate {
         //const localPos = this.scrapeZone.getLocalPoint(x, y);
         //this.scrapeZone.draw('brush_eps_75', localPos.x, localPos.y);
         const localPos = this.stains.getLocalPoint(x, y);
-        this.stains.erase('brush_eps_75', localPos.x - 128 / 2, localPos.y - 162 / 2);
+
+        let brush: BrushType = BrushType.NORMAL_BRUSH;
+        switch(this.difficulty) {
+            case Difficulty.EASY:
+                brush = BrushType.NORMAL_BRUSH;
+                break;
+            case Difficulty.STANDARD:
+                brush = (Math.random() < 0.2) ? BrushType.HARD_BRUSH: BrushType.NORMAL_BRUSH;
+                break;
+            case Difficulty.HARD:
+                brush = (Math.random() < 0.6) ? BrushType.HARD_BRUSH: BrushType.NORMAL_BRUSH;
+                break;
+        }
+
+        this.stains.erase(brush, localPos.x - 128 / 2, localPos.y - 162 / 2);
     }
 
 
