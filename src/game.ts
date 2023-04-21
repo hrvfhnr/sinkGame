@@ -126,7 +126,7 @@ export default class WashGame extends Phaser.Scene {
 }
 
 const config = {
-    type: Phaser.AUTO,
+    type: Phaser.CANVAS,
     backgroundColor: '#125555',
     width: 1000,
     height: 750,

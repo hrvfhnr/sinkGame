@@ -7,6 +7,7 @@ export default class Sponge extends Phaser.GameObjects.Sprite {
 
     constructor (wGame: WashGame) {
         super(wGame, 350, 375, 'sponge');
+        this.setScale(1.1);
         this.game = wGame;
     }
 
