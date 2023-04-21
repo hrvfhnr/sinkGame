@@ -21,14 +21,15 @@ export default class Controls {
         this.input.manager.events.on('pointerlockchange', event => {
             //### TODO    
             //this.updateLockText(event.isPointerLocked, this.sprite.x, this.sprite.y);
-        });
+        }, this);
 
 
-
+        this.input.keyboard.on('keydown-C', event => {
+            this.game.cleanChecker.check();
+        }, this);
     }
 
     private onMouseMove(pointer) {
-        
         if (this.input.mouse.locked) {
             if (pointer.isDown)
                 this.game.getCurrentPlate().scrape(this.sponge.x, this.sponge.y);
@@ -37,9 +38,10 @@ export default class Controls {
     };
 
 
-    private getLock(pointer) {
+    public getLock(pointer) {
+        if (!this.input.mouse.locked)
+            this.sponge.bump();
         this.input.mouse.requestPointerLock();
-        this.sponge.active = false;
     }
 
     private releaseLock(event) {

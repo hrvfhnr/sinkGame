@@ -73,7 +73,9 @@ export default class Plate {
         }
 
         this.stains.erase('stain_cropper', 0, 0);
+
     }
+
 
     private getRandomStainPosition(): {x : number, y: number} {
         return {
@@ -85,6 +87,17 @@ export default class Plate {
     public resetClean() {
         //TODO
     }
+
+
+    public hide() {
+        this.setPos(-1000, -1000);
+        this.sp.setActive(false);
+    }
+
+    public show() {
+        this.sp.setActive(true);
+    }
+
 
 
     public scrape(x: number, y: number) {
