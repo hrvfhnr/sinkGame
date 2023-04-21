@@ -21,10 +21,17 @@ export default class WashGame extends Phaser.Scene {
 
     layers: Phaser.GameObjects.Layer[];
 
+    startTime: number | null;
+    endTime: number | null;
+
     constructor () {
         super('WashGame');
         this.step = GameStep.INTRO;
+
+        this.startTime = null;
+        this.endTime = null;
     }
+
 
     preload () {
     
@@ -49,7 +56,6 @@ export default class WashGame extends Phaser.Scene {
     }
 
     create () {
-
         this.initLayers();
         this.initBrushesCollection();
 
@@ -60,7 +66,7 @@ export default class WashGame extends Phaser.Scene {
         this.sponge = new Sponge(this);
         this.add.existing(this.sponge);
         this.addToLayer(this.sponge, Cs.LAYER.SPONGE);
-        this.initCleanChecker();
+        this.cleanChecker = new CleanChecker(this);
         this.initPlates();
         
         
@@ -114,25 +120,29 @@ export default class WashGame extends Phaser.Scene {
 
     private initPlates() {
         this.plates = [];
-        for(let i = 0; i < 1; i++) {
-            const plate = new Plate(this, Utils.getRandomInt(7));
-            plate.setPos(Cs.PLATE_POS.X, Cs.PLATE_POS.Y);
-            this.plates.push(plate);
 
-            plate.initStains(Difficulty.STANDARD);
+        const diffs = [
+            Difficulty.EASY,
+            Difficulty.STANDARD,
+            Difficulty.STANDARD,
+            Difficulty.HARD,
+            Difficulty.HARD];
+
+        for(const diff of diffs) {
+            const plate = new Plate(this, (!this.plates.length) ? 0 : Utils.getRandomInt(7));
+            this.plates.push(plate);
+            plate.initStains(diff);
+            plate.hide();
         }
 
+        this.getCurrentPlate().show();
+        this.getCurrentPlate().setPos(Cs.PLATE_POS.X, Cs.PLATE_POS.Y);
         this.cleanChecker.initWithStains(this.getCurrentPlate().stains);
     }
 
 
     getCurrentPlate(): Plate {
         return this.plates[0];
-    }
-
-    private initCleanChecker() {
-        console.log("INIT CLEAN CHECKER");
-        this.cleanChecker = new CleanChecker(this);
     }
 
 

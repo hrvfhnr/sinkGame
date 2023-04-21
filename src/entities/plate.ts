@@ -89,6 +89,17 @@ export default class Plate {
     }
 
 
+    public hide() {
+        this.setPos(-1000, -1000);
+        this.sp.setActive(false);
+    }
+
+    public show() {
+        this.sp.setActive(true);
+    }
+
+
+
     public scrape(x: number, y: number) {
         //const localPos = this.scrapeZone.getLocalPoint(x, y);
         //this.scrapeZone.draw('brush_eps_75', localPos.x, localPos.y);
