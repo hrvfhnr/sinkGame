@@ -82,7 +82,8 @@ export default class Plate {
 
     private initCleanChecker() {
         console.log("INIT CLEAN CHECKER");
-        this.cleanChecker = new CleanChecker(this.stains);
+        this.cleanChecker = new CleanChecker(this.game);
+        this.cleanChecker.initWithStains(this.stains);
     }
 
     private getRandomStainPosition(): {x : number, y: number} {

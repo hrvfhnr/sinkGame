@@ -123,10 +123,15 @@ export default class WashGame extends Phaser.Scene {
     getCurrentPlate(): Plate {
         return this.plates[0];
     }
+
+    
+    update(time: number, delta: number): void {
+        //TODO
+    }
 }
 
 const config = {
-    type: Phaser.CANVAS,
+    type: Phaser.AUTO,
     backgroundColor: '#125555',
     width: 1000,
     height: 750,
