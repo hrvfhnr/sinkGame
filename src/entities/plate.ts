@@ -90,7 +90,7 @@ export default class Plate {
 
 
     public hide() {
-        this.setPos(-1000, -1000);
+        this.setPos(Cs.PLATE_POS.X, Cs.PLATE_POS.Y - 1200);
         this.sp.setActive(false);
     }
 
@@ -118,6 +118,12 @@ export default class Plate {
                 break;
         }
 
+        //force super brush to help on last dirty pixels
+        if (this.game.cleanChecker.canBeLastScraped) {
+            brushType = BrushType.SUPER_BRUSH;
+            console.log("USE SUPER BRUSH");
+        }
+        
         this.stains.erase(this.game.getBrushByType(brushType), localPos.x, localPos.y);
     }
 

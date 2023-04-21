@@ -13,13 +13,13 @@ export enum Difficulty {
 
 export enum BrushType {
     NORMAL_BRUSH = 'brush_normal',
-    HARD_BRUSH = 'brush_hard'
+    HARD_BRUSH = 'brush_hard',
+    SUPER_BRUSH = 'brush_super'
 }
-
 
 export enum GameStep {
     INTRO,
-    START,
+    STARTING,
     PLAY,
     RINSE,
     CLEAN_CHECK,

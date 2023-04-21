@@ -1,5 +1,6 @@
 import Sponge from "./entities/sponge";
 import WashGame from "./game";
+import { GameStep } from "./types";
 
 export default class Controls {
     game: WashGame;
@@ -39,9 +40,17 @@ export default class Controls {
 
 
     public getLock(pointer) {
-        if (!this.input.mouse.locked)
-            this.sponge.bump();
+        if (!this.input.mouse.locked) {
+            if (this.game.hasStep(GameStep.INTRO)) {
+                this.sponge.bumpFromLogo(pointer.x, pointer.y);
+                this.game.hideLogo();
+            } else
+                this.sponge.bump(pointer.x, pointer.y);
+        }
         this.input.mouse.requestPointerLock();
+
+        if (this.game.hasStep(GameStep.INTRO))
+            this.game.start();
     }
 
     private releaseLock(event) {

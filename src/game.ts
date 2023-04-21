@@ -16,24 +16,44 @@ export default class WashGame extends Phaser.Scene {
     cleanChecker: CleanChecker;
     brushes: {
         [BrushType.NORMAL_BRUSH]: Phaser.GameObjects.Sprite[];
-        [BrushType.HARD_BRUSH]: Phaser.GameObjects.Sprite[];
+        [BrushType.HARD_BRUSH]: Phaser.GameObjects.Sprite[]
+        [BrushType.SUPER_BRUSH]: Phaser.GameObjects.Sprite[];
     }
 
     layers: Phaser.GameObjects.Layer[];
 
     startTime: number | null;
-    endTime: number | null;
+    deltaTime: number | null
+    timeText: Phaser.GameObjects.Text;
+
+    cleanCompletionText: Phaser.GameObjects.Text;
+
+    txt_clickTo: Phaser.GameObjects.Sprite;
+    txt_startLogo: Phaser.GameObjects.Sprite;
+
 
     constructor () {
         super('WashGame');
+
         this.step = GameStep.INTRO;
 
         this.startTime = null;
-        this.endTime = null;
+        this.deltaTime = null;
+    }
+
+
+    init() {
+        const element = document.createElement('style');
+        document.head.appendChild(element);
+        const sheet = element.sheet;
+        let styles = '@font-face { font-family: "Double_Bubble_shadow"; src: url("assets/fonts/Double_Bubble_shadow.otf") format("opentype"); }\n';
+        sheet.insertRule(styles, 0);
     }
 
 
     preload () {
+
+        this.load.script('webfont', 'https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js');
     
         this.load.image('background', 'assets/bg.png');
         this.load.image('sponge', 'assets/sponge.png');
@@ -43,6 +63,13 @@ export default class WashGame extends Phaser.Scene {
         //scraping brushes        
         this.load.image('brush_normal', 'assets/brush_normal.png');
         this.load.image('brush_hard', 'assets/brush_hard.png');
+        this.load.image('brush_super', 'assets/brush_super.png');
+
+        //text imgs
+        this.load.image('start_logo', 'assets/texts/startLogo.png');
+        this.load.image('click_to', 'assets/texts/clickTo.png');
+
+
 
         //plates
         for (let i = 0; i < 7; i++)
@@ -56,6 +83,7 @@ export default class WashGame extends Phaser.Scene {
     }
 
     create () {
+        this.initFonts();
         this.initLayers();
         this.initBrushesCollection();
 
@@ -73,16 +101,39 @@ export default class WashGame extends Phaser.Scene {
         this.controls = new Controls();
         this.controls.init(this, this.sponge);
 
-        /*
+
+        this.txt_clickTo = this.add.sprite(Cs.SCREEN_SIZE.WIDTH / 2, 250, 'click_to');
+        this.txt_startLogo = this.add.sprite(Cs.SCREEN_SIZE.WIDTH / 2, 395, 'start_logo');
+
+        
         this.tweens.add({
-            targets: this.plates[0].sp,
-            y: 600,
-            duration: 1500,
-            ease: 'Sine.inOut',
-            yoyo: true,
-            repeat: -1
-        })
-        */
+            targets: this.txt_clickTo,
+            y: 280,
+            duration: 750,
+            ease: 'Back.Out'
+        });
+        this.tweens.add({
+            targets: this.txt_startLogo,
+            y: 365,
+            duration: 750,
+            ease: 'Back.Out'
+        });
+        
+    }
+
+
+    private initFonts() {
+        const localThis = this;
+        WebFont.load({
+            custom: {
+                families: [ 'Double_Bubble_shadow' ]
+            },
+            active: function () {
+                localThis.timeText = localThis.add.text(Cs.SCREEN_SIZE.WIDTH / 2 - 120, 5, '00:00:00', { fontFamily: 'Double_Bubble_shadow', fontSize: 64, color: '#FF4F00' });
+                localThis.cleanCompletionText = localThis.add.text(Cs.PLATE_POS.X - 50, Cs.PLATE_POS.X - 50, '', { fontFamily: 'Double_Bubble_shadow', fontSize: 72, color: '#FF4F00' });
+                localThis.cleanCompletionText.setActive(false);
+            }
+        });
     }
 
     private initLayers() {
@@ -100,10 +151,15 @@ export default class WashGame extends Phaser.Scene {
 
 
     private initBrushesCollection() {
-        this.brushes = { [BrushType.NORMAL_BRUSH]: [], [BrushType.HARD_BRUSH]: [] };
+        this.brushes = { 
+            [BrushType.NORMAL_BRUSH]: [],
+            [BrushType.HARD_BRUSH]: [], 
+            [BrushType.SUPER_BRUSH]: [this.add.sprite(-1000, -1000, BrushType.SUPER_BRUSH)]
+        };
+
         for (let i = 0; i < 3; i++) {
-            const spNormal = this.add.sprite(0, 0, BrushType.NORMAL_BRUSH);
-            const spHard = this.add.sprite(0, 0, BrushType.HARD_BRUSH);
+            const spNormal = this.add.sprite(-1000, -1000, BrushType.NORMAL_BRUSH);
+            const spHard = this.add.sprite(-1000, -1000, BrushType.HARD_BRUSH);
             spNormal.setRotation( (1 - i) * 1 );
             spHard.setRotation( (1 - i) * 2) ;
 
@@ -123,9 +179,9 @@ export default class WashGame extends Phaser.Scene {
 
         const diffs = [
             Difficulty.EASY,
+            Difficulty.EASY,
             Difficulty.STANDARD,
             Difficulty.STANDARD,
-            Difficulty.HARD,
             Difficulty.HARD];
 
         for(const diff of diffs) {
@@ -147,7 +203,73 @@ export default class WashGame extends Phaser.Scene {
 
 
     update(time: number, delta: number): void {
-        //TODO
+
+
+        this.updateGameTime();
+
+        switch(this.step) {
+            case GameStep.INTRO:
+
+                break;
+            case GameStep.STARTING:
+
+                break;
+            case GameStep.PLAY:
+
+                break;
+            case GameStep.RINSE:
+
+                break;
+                case GameStep.CLEAN_CHECK:
+
+                break;
+            case GameStep.NEXT_PLATE:
+
+                break;
+                case GameStep.GAME_OVER:
+
+                break;
+        }
+    }
+
+    public start() {
+        this.step = GameStep.PLAY;
+        this.startTime = new Date().getTime();
+    }
+
+    public hasStep(s: GameStep): boolean {
+        return this.step === s;
+    }
+
+
+    private isGamingStep() {
+        return ![GameStep.INTRO, GameStep.STARTING, GameStep.GAME_OVER].find( s => s === this.step)
+    }
+
+
+    private updateGameTime() {
+        if (!this.startTime || !this.timeText || !this.isGamingStep()) return;
+
+
+        this.deltaTime = (new Date().getTime() - this.startTime);
+        const sDeltaTime = Math.floor(this.deltaTime / 1000);
+        
+        const minutes = Math.floor(sDeltaTime / 60);
+        const seconds = Math.floor(sDeltaTime - minutes * 60);
+        const milli = Math.floor((this.deltaTime - sDeltaTime * 1000) / 10);
+
+        const formatValue = val => (val < 10 ? '0' : '') + String(val);
+        this.timeText.setText(formatValue(minutes) + ':' + formatValue(seconds) + ':' + formatValue(milli));
+    }
+
+
+    public hideLogo() {
+        this.tweens.add({
+            targets: [this.txt_clickTo, this.txt_startLogo],
+            alpha: 0,
+            duration: 400,
+            ease: 'Sine.easeInOut'
+        });
     }
 }
 
