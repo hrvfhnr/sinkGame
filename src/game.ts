@@ -4,13 +4,16 @@ import Sponge from './entities/sponge';
 import Plate from './entities/plate';
 import Cs from './cs';
 import Utils from './Utils';
-import { Difficulty, BrushType } from './types';
+import { Difficulty, BrushType, GameStep } from './types';
+import CleanChecker from "./CleanChecker";
 
 export default class WashGame extends Phaser.Scene {
 
+    step: GameStep;
     controls: Controls;
     sponge: Sponge;
     plates: Plate[];
+    cleanChecker: CleanChecker;
     brushes: {
         [BrushType.NORMAL_BRUSH]: Phaser.GameObjects.Sprite[];
         [BrushType.HARD_BRUSH]: Phaser.GameObjects.Sprite[];
@@ -20,6 +23,7 @@ export default class WashGame extends Phaser.Scene {
 
     constructor () {
         super('WashGame');
+        this.step = GameStep.INTRO;
     }
 
     preload () {
@@ -56,7 +60,7 @@ export default class WashGame extends Phaser.Scene {
         this.sponge = new Sponge(this);
         this.add.existing(this.sponge);
         this.addToLayer(this.sponge, Cs.LAYER.SPONGE);
-
+        this.initCleanChecker();
         this.initPlates();
         
         
@@ -117,6 +121,8 @@ export default class WashGame extends Phaser.Scene {
 
             plate.initStains(Difficulty.STANDARD);
         }
+
+        this.cleanChecker.initWithStains(this.getCurrentPlate().stains);
     }
 
 
@@ -124,7 +130,12 @@ export default class WashGame extends Phaser.Scene {
         return this.plates[0];
     }
 
-    
+    private initCleanChecker() {
+        console.log("INIT CLEAN CHECKER");
+        this.cleanChecker = new CleanChecker(this);
+    }
+
+
     update(time: number, delta: number): void {
         //TODO
     }

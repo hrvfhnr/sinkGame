@@ -6,7 +6,7 @@ export default class Sponge extends Phaser.GameObjects.Sprite {
     game: WashGame;
 
     constructor (wGame: WashGame) {
-        super(wGame, 350, 375, 'sponge');
+        super(wGame, Cs.SCREEN_SIZE.WIDTH / 2 , Cs.SCREEN_SIZE.HEIGHT / 2 , 'sponge');
         this.setScale(1.1);
         this.game = wGame;
     }
@@ -32,6 +32,19 @@ export default class Sponge extends Phaser.GameObjects.Sprite {
         } else { 
             this.setRotation(0); 
         }
+    }
+
+    public bump() {
+        this.scale = 0.9;
+        //ts-ignore
+        this.game.tweens.add({
+            targets: this,
+            scale: 1.0,
+            duration: 1000,
+            ease: 'Elastic.Out',
+            yoyo: false,
+            //repeat: -1
+        })
     }
 
 }

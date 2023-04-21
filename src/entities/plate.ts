@@ -3,14 +3,12 @@ import WashGame from "../game";
 import Cs from '../cs';
 import Utils from '../Utils';
 import { StainColor, Difficulty, BrushType } from '../types';
-import CleanChecker from "../CleanChecker";
 
 export default class Plate {
 
     game: WashGame;
     plateId: number;
     difficulty: Difficulty;
-    cleanChecker: CleanChecker;
     
     sp: Phaser.GameObjects.Container;
     bgPlate: Phaser.GameObjects.Sprite;
@@ -76,15 +74,8 @@ export default class Plate {
 
         this.stains.erase('stain_cropper', 0, 0);
 
-        this.initCleanChecker();
     }
 
-
-    private initCleanChecker() {
-        console.log("INIT CLEAN CHECKER");
-        this.cleanChecker = new CleanChecker(this.game);
-        this.cleanChecker.initWithStains(this.stains);
-    }
 
     private getRandomStainPosition(): {x : number, y: number} {
         return {

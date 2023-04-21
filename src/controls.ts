@@ -19,15 +19,13 @@ export default class Controls {
         this.input.keyboard.on('keydown-Q', this.releaseLock, this);
         
         this.input.manager.events.on('pointerlockchange', event => {
-            if (this.sponge)
-                this.sponge.setScale(this.input.mouse.locked ? 1.0 : 1.1);
             //### TODO    
             //this.updateLockText(event.isPointerLocked, this.sprite.x, this.sprite.y);
         }, this);
 
 
         this.input.keyboard.on('keydown-C', event => {
-            this.game.getCurrentPlate().cleanChecker.check();
+            this.game.cleanChecker.check();
         }, this);
     }
 
@@ -40,7 +38,9 @@ export default class Controls {
     };
 
 
-    private getLock(pointer) {
+    public getLock(pointer) {
+        if (!this.input.mouse.locked)
+            this.sponge.bump();
         this.input.mouse.requestPointerLock();
     }
 

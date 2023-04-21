@@ -17,5 +17,15 @@ export enum BrushType {
 }
 
 
+export enum GameStep {
+    INTRO,
+    START,
+    PLAY,
+    RINSE,
+    CLEAN_CHECK,
+    NEXT_PLATE,
+    GAME_OVER
+}
+
 
 

@@ -14,7 +14,7 @@ export default class CleanChecker {
     static CLEAN_MAX_DIRTY_PIXELS = 100;
 
     static LAST_SCRAPE_MAX_ALPHA = 80;
-    static LAST_SCRAPE_MAX_DIRTY_PIXELS = 150;
+    static LAST_SCRAPE_MAX_DIRTY_PIXELS = 160;
 
     static CLEAN_MIN_ALPHA = 20;
 
