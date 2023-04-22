@@ -92,10 +92,12 @@ export default class Plate {
     public hide() {
         this.setPos(Cs.PLATE_POS.X, Cs.PLATE_POS.Y - 1200);
         this.sp.setActive(false);
+        this.sp.setVisible(false);
     }
 
     public show() {
         this.sp.setActive(true);
+        this.sp.setVisible(true);
     }
 
 

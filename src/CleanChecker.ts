@@ -80,6 +80,8 @@ export default class CleanChecker {
 
 
     public check() {
+        if (!this.stains) return;
+
         console.log('start check');
 
         this.isClean = false;

@@ -13,5 +13,12 @@ export default class Utils {
         return fromArray[this.getRandomInt(fromArray.length)] ;
     }
 
+
+    static switchSprite(sp: Phaser.GameObjects.Sprite, visible: boolean) {
+        if (!sp) return;
+        sp.setActive(visible);
+        sp.setVisible(visible);
+    }
+
     //static getRandomWeight() {} //TODO
 }

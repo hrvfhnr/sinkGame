@@ -40,17 +40,21 @@ export default class Controls {
 
 
     public getLock(pointer) {
-        if (!this.input.mouse.locked) {
-            if (this.game.hasStep(GameStep.INTRO)) {
+        if (this.game.hasStep(GameStep.INTRO)) {
+            if (!this.game.introLock) {
                 this.sponge.bumpFromLogo(pointer.x, pointer.y);
                 this.game.hideLogo();
-            } else
-                this.sponge.bump(pointer.x, pointer.y);
-        }
-        this.input.mouse.requestPointerLock();
 
-        if (this.game.hasStep(GameStep.INTRO))
-            this.game.start();
+                this.game.prepareStart();
+                //this.game.startGame();
+                
+                this.input.mouse.requestPointerLock();
+            }
+        } else {
+            if (!this.input.mouse.locked)
+                this.sponge.bump(pointer.x, pointer.y);
+            this.input.mouse.requestPointerLock();
+        }
     }
 
     private releaseLock(event) {
