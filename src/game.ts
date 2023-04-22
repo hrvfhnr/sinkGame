@@ -57,6 +57,8 @@ export default class WashGame extends Phaser.Scene {
         const sheet = element.sheet;
         let styles = '@font-face { font-family: "Double_Bubble_shadow"; src: url("assets/fonts/Double_Bubble_shadow.otf") format("opentype"); }\n';
         sheet.insertRule(styles, 0);
+
+        Utils.initSeed();
     }
 
 
@@ -67,6 +69,9 @@ export default class WashGame extends Phaser.Scene {
         this.load.image('background', 'assets/background.png');
         this.load.image('backgroundFog', 'assets/bgFog.png');
         this.load.image('foreground', 'assets/foreground.png');
+
+        this.load.image('mug', 'assets/mug.png');
+        this.load.image('cup', 'assets/coffeeCup.png');
 
         this.load.image('sponge', 'assets/sponge.png');
         this.load.image('stain_cropper', 'assets/stain_cropper.png');
@@ -118,6 +123,17 @@ export default class WashGame extends Phaser.Scene {
 
         const foreground = this.add.image(Cs.SCREEN_SIZE.WIDTH / 2, Cs.SCREEN_SIZE.HEIGHT, 'foreground');
         this.addToLayer(foreground, Cs.LAYER.FG);
+
+        const bgMug = this.add.image(160, 550, 'mug');
+        this.addToLayer(bgMug, Cs.LAYER.BG_0);
+        bgMug.setRotation(3.14);
+        bgMug.scale = 0.5;
+
+        const bgCup = this.add.image(45, 580, 'cup');
+        this.addToLayer(bgCup, Cs.LAYER.BG_0);
+        bgCup.setRotation(3.14);
+        bgCup.scale = 0.4;
+
 
         this.txt_rinse = this.add.sprite(Cs.RINSE_POS.X + 600, Cs.RINSE_POS.Y, 'rinse');
         this.addToLayer(this.txt_rinse, Cs.LAYER.FG);
@@ -241,11 +257,12 @@ export default class WashGame extends Phaser.Scene {
             Difficulty.STANDARD,
             Difficulty.HARD];
 
-        for(const diff of diffs) {
-            const plate = new Plate(this, (!this.plates.length) ? 0 : Utils.getRandomInt(7));
-            this.plates.push(plate);
+        for(const diff of diffs.reverse()) {
+            const plate = new Plate(this, (this.plates.length === 4) ? 0 : Utils.getRandomInt(7));
+            this.plates.unshift(plate);
             plate.initStains(diff);
-            plate.hide();
+            //plate.hide();
+            plate.placeIntoSink();
         }
     }
 
@@ -291,7 +308,7 @@ export default class WashGame extends Phaser.Scene {
         const localThis = this;
 
 
-        let initialDelay = 1000;
+        let initialDelay = 750;
 
         let tweenTime = 800;
 
@@ -341,7 +358,7 @@ export default class WashGame extends Phaser.Scene {
                 
             }
 
-            initialDelay += 1400;
+            initialDelay += 1200;
         }
     
     }
@@ -356,18 +373,18 @@ export default class WashGame extends Phaser.Scene {
         const plate = this.getCurrentPlate();
         if (!plate) return; //TODO : game over
 
-        plate.show();
-        plate.setPos(Cs.PLATE_POS.X, Cs.PLATE_POS.Y + 550);
         this.cleanChecker.initWithStains(plate.stains);
 
         const localThis = this;
         
         this.tweens.add({
             targets: plate.sp,
+            x: Cs.PLATE_POS.X,
             y: Cs.PLATE_POS.Y,
-            duration: 900,
-            ease: 'Back.Out',
-            delay: 200,
+            rotation: 0,
+            duration: 1000,
+            ease: 'Back.InOut',
+            delay: 350,
             onComplete: () => { localThis.startTime = new Date().getTime(); }
         });
     }
