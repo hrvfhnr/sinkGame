@@ -9,8 +9,9 @@ export default class Utils {
     //2970784
     //1612922
 
-    static getRandomInt(max: number): number {
-        return Math.floor(this.srand.next() * max);
+    static getRandomInt(max: number, noSeed = false): number {
+        const n = noSeed ? Math.random() : this.srand.next();
+        return Math.floor(n * max);
     }
 
 
