@@ -26,9 +26,7 @@ export default class WashGame extends Phaser.Scene {
     deltaTime: number | null
     timeText: Phaser.GameObjects.Text;
 
-    cleanCompletionText: Phaser.GameObjects.Text;
 
-    //txt_clickTo: Phaser.GameObjects.Sprite;
     txt_startLogo: Phaser.GameObjects.Sprite;
     txt_rinse: Phaser.GameObjects.Sprite;
 
@@ -36,6 +34,8 @@ export default class WashGame extends Phaser.Scene {
     txt_start_2: Phaser.GameObjects.Sprite;
     txt_start_1: Phaser.GameObjects.Sprite;
     txt_start_go: Phaser.GameObjects.Sprite;
+
+    redFail: Phaser.GameObjects.Image;
 
     introLock: boolean;
 
@@ -70,6 +70,8 @@ export default class WashGame extends Phaser.Scene {
         this.load.image('backgroundFog', 'assets/bgFog.png');
         this.load.image('foreground', 'assets/foreground.png');
 
+        this.load.image('redFail', 'assets/redFail.png');
+
         this.load.image('mug', 'assets/mug.png');
         this.load.image('cup', 'assets/coffeeCup.png');
 
@@ -93,10 +95,11 @@ export default class WashGame extends Phaser.Scene {
         this.load.image('start_go', 'assets/texts/go.png');
 
         this.load.image('clean_ok', 'assets/texts/propre_ok.png');
-        this.load.image('clean_nope', 'assets/texts/propre_no.png');
+        this.load.image('clean_nope', 'assets/texts/propre_no_2.png');
         this.load.image('clean_100', 'assets/texts/100.png');
 
-        
+        this.load.image('whiteSparkles', 'assets/particles/whiteSparkles.png');
+
 
         //plates
         for (let i = 0; i < 7; i++)
@@ -110,7 +113,6 @@ export default class WashGame extends Phaser.Scene {
     }
 
     create () {
-        this.initFonts();
         this.initLayers();
         this.initBrushesCollection();
 
@@ -123,6 +125,10 @@ export default class WashGame extends Phaser.Scene {
 
         const foreground = this.add.image(Cs.SCREEN_SIZE.WIDTH / 2, Cs.SCREEN_SIZE.HEIGHT, 'foreground');
         this.addToLayer(foreground, Cs.LAYER.FG);
+
+        this.redFail = this.add.image(Cs.SCREEN_SIZE.WIDTH / 2, Cs.SCREEN_SIZE.HEIGHT / 2, 'redFail');
+        this.addToLayer(this.redFail, Cs.LAYER.FX);
+        Utils.switchSprite(this.redFail, false);
 
         const bgMug = this.add.image(160, 550, 'mug');
         this.addToLayer(bgMug, Cs.LAYER.BG_0);
@@ -168,21 +174,27 @@ export default class WashGame extends Phaser.Scene {
         this.controls.init(this, this.sponge);
 
 
-        //this.txt_clickTo = this.add.sprite(Cs.SCREEN_SIZE.WIDTH / 2, 300, 'click_to');
-        this.txt_startLogo = this.add.sprite(Cs.SCREEN_SIZE.WIDTH / 2, 445, 'start_logo');
+        this.initFonts();
+
+
+        this.txt_startLogo = this.add.sprite(Cs.SCREEN_SIZE.WIDTH / 2 - 200, 400, 'start_logo');
         this.txt_startLogo.alpha = 0;
-        /*this.tweens.add({
-            targets: this.txt_clickTo,
-            y: 330,
-            duration: 750,
-            ease: 'Back.Out'
-        });*/
         const localThis = this;
+
+        this.tweens.add({
+            targets: this.sponge,
+            x: Cs.SCREEN_SIZE.WIDTH / 2,
+            duration: 500,
+            ease: 'Back.Out',
+            delay: 500
+        });
+
         this.tweens.add({
             targets: this.txt_startLogo,
-            y: 400,
+            x: Cs.SCREEN_SIZE.WIDTH / 2,
             duration: 750,
             ease: 'Back.Out',
+            delay: 600
             onComplete: () => {
                 localThis.introLock = false;
             }
@@ -192,6 +204,7 @@ export default class WashGame extends Phaser.Scene {
             alpha: 1,
             duration: 750,
             ease: 'Sine.easeInOut',
+            delay: 600
         });
     }
 
@@ -204,8 +217,9 @@ export default class WashGame extends Phaser.Scene {
             },
             active: function () {
                 localThis.timeText = localThis.add.text(Cs.SCREEN_SIZE.WIDTH - 255, 5, '00:00:00', { fontFamily: 'Double_Bubble_shadow', fontSize: 64, color: '#FF4F00' });
-                localThis.cleanCompletionText = localThis.add.text(Cs.PLATE_POS.X - 50, Cs.PLATE_POS.X - 50, '', { fontFamily: 'Double_Bubble_shadow', fontSize: 72, color: '#FF4F00' });
-                localThis.cleanCompletionText.setActive(false);
+
+                for (const plate of localThis.plates)
+                    plate.initCompletionText();
             }
         });
     }
@@ -255,13 +269,12 @@ export default class WashGame extends Phaser.Scene {
             Difficulty.EASY,
             Difficulty.STANDARD,
             Difficulty.STANDARD,
-            Difficulty.HARD];
+        Difficulty.HARD];
 
         for(const diff of diffs.reverse()) {
             const plate = new Plate(this, (this.plates.length === 4) ? 0 : Utils.getRandomInt(7));
             this.plates.unshift(plate);
             plate.initStains(diff);
-            //plate.hide();
             plate.placeIntoSink();
         }
     }
@@ -366,9 +379,8 @@ export default class WashGame extends Phaser.Scene {
     public startGame() {
 
         const localThis = this;
-        const callback = () => { localThis.setStep(GameStep.PLAY) };
         
-        this.nextPlate(callback);
+        this.nextPlate();
         this.tweens.add({
             targets: this.txt_rinse,
             x: Cs.RINSE_POS.X,
@@ -380,8 +392,16 @@ export default class WashGame extends Phaser.Scene {
 
     }
 
+    public dropCurrentPlate(): boolean {
+        if (!this.plates.length) return false;
 
-    public nextPlate(callback) {
+        const plate = this.plates.shift();
+        Utils.switchSprite(plate.sp, false);
+        return true;
+    }
+
+
+    public nextPlate() {
         const plate = this.getCurrentPlate();
         if (!plate) return; //TODO : game over
 
@@ -400,9 +420,9 @@ export default class WashGame extends Phaser.Scene {
             ease: 'Back.InOut',
             delay: 350,
             onComplete: () => { 
-                localThis.startTime = new Date().getTime();
-                if (callback)
-                    callback();
+                if (!localThis.startTime)
+                    localThis.startTime = new Date().getTime();
+                localThis.setStep(GameStep.PLAY);
              }
         });
     } 
@@ -457,7 +477,7 @@ export default class WashGame extends Phaser.Scene {
         this.tweens.add({
             targets: plate.sp,
             y: Cs.PLATE_POS.Y + 450,
-            rotation: 0,
+            rotation: 0.5,
             duration: 460,
             ease: 'Sine.easeInOut',
             delay: initialDelay + downTime,
@@ -466,14 +486,25 @@ export default class WashGame extends Phaser.Scene {
         this.tweens.add({
             targets: plate.sp,
             y: Cs.PLATE_POS.Y + 470,
-            rotation: 0,
+            rotation: -0.4,
             duration: 430,
             ease: 'Quad.easeInOut',
             delay: initialDelay + downTime + 450 * 2,
             yoyo: true,
             onComplete: () => { plate.rinseResult(); }
-        });
-        
+        });   
+    }
+
+    public checkGameOver(): boolean {
+        return this.plates.length < 1 && this.cleanChecker.isClean;
+    }
+
+    public startGameOver() {
+        this.setStep(GameStep.GAME_OVER);
+        console.log("GAME OVER");
+
+        //TODO
+
     }
 
 
@@ -486,12 +517,16 @@ export default class WashGame extends Phaser.Scene {
     }
 
     private isGamingStep() {
-        return ![GameStep.INTRO, GameStep.STARTING, GameStep.GAME_OVER].find( s => s === this.step)
+        const localThis = this;
+        return ![GameStep.INTRO, GameStep.STARTING, GameStep.GAME_OVER].find( s => { localThis.hasStep(s) });
     }
 
 
     private updateGameTime() {
-        if (!this.startTime || !this.timeText || !this.isGamingStep()) return;
+        if (!this.startTime || !this.timeText || !this.isGamingStep()) { 
+            //console.log("no update time");
+            return;
+        }
 
 
         this.deltaTime = (new Date().getTime() - this.startTime);

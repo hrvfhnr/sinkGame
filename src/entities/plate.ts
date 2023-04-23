@@ -13,6 +13,18 @@ export default class Plate {
     sp: Phaser.GameObjects.Container;
     bgPlate: Phaser.GameObjects.Sprite;
     stains: Phaser.GameObjects.RenderTexture;
+    spTexts: Phaser.GameObjects.Container;
+
+    txt_completion: Phaser.GameObjects.Text;
+    txt_completionDone: Phaser.GameObjects.Sprite;
+    txt_cleanNo: Phaser.GameObjects.Sprite;
+    txt_cleanOk: Phaser.GameObjects.Sprite;
+
+    partShape: Phaser.Geom.Circle;
+    sparklesParts: Phaser.GameObjects.Particles.Particle;
+    sparklesEmitter: Phaser.GameObjects.Particles.ParticleEmitter;
+    
+
     //foam: Phaser.GameObjects.Container;
 
     currentTween: Phaser.Tweens.Tween;
@@ -35,8 +47,43 @@ export default class Plate {
 
         this.bgPlate = this.game.add.sprite(plateOffsetInit.x, plateOffsetInit.y, 'plate_' + String(this.plateId));
         this.stains = this.game.add.renderTexture(0, 0, Cs.STAIN_RENDER_SIZE, Cs.STAIN_RENDER_SIZE);
-        
-        this.sp.add([this.bgPlate, this.stains]);
+        this.spTexts = this.game.add.container(0, -20);
+
+        this.sp.add([this.bgPlate, this.stains, this.spTexts]);
+
+        this.txt_completionDone = this.game.add.sprite(0, 0, 'clean_100');
+        this.txt_cleanNo = this.game.add.sprite(0, 65, 'clean_nope');
+        this.txt_cleanOk = this.game.add.sprite(-1, 62, 'clean_ok');
+
+        this.spTexts.add([this.txt_completionDone, this.txt_cleanNo, this.txt_cleanOk]);
+
+        Utils.switchSprite(this.txt_completionDone, false);
+        Utils.switchSprite(this.txt_cleanOk, false);
+        Utils.switchSprite(this.txt_cleanNo, false);
+        this.spTexts.setVisible(false);
+        this.spTexts.setActive(false);
+
+        this.partShape = new Phaser.Geom.Circle(0, 0, 256);
+        this.sparklesEmitter = this.game.add.particles(0, 0, 'whiteSparkles', {
+            lifespan:  1500,
+            speed:     24,
+            scale:     { start: 0.4, end: 0 },
+            emitting: false,
+            quantity: 10,
+            emitZone:  { type: 'edge', source: this.partShape, quantity: 42 },
+            duration: 300
+        });
+        this.sp.add(this.sparklesEmitter);
+    }
+
+    public initCompletionText() {
+        this.txt_completion = this.game.add.text(0, 0, '00,00%', { fontFamily: 'Double_Bubble_shadow', fontSize: 92, color: '#FF4F00' });
+        this.txt_completion.setOrigin(0.5);
+        this.spTexts.add(this.txt_completion);
+
+
+        this.txt_completion.setVisible(false);
+        this.txt_completion.setActive(false);
     }
 
     public initStains(diff: Difficulty) {
@@ -128,20 +175,100 @@ export default class Plate {
 
     public rinseResult() {
         const localThis = this;
+        const upTime = 1000;
+        const textTime = 550;
 
         this.game.tweens.add({
             targets: this.sp,
             y: Cs.PLATE_POS.Y,
-            duration: 1000,
-            ease: 'Back.Out',
-            onComplete: () => { localThis.game.setStep(GameStep.PLAY) }
+            duration: upTime,
+            ease: 'Back.Out'
         });
+
+        
+        Utils.switchSprite(this.spTexts, true);
+        this.spTexts.scale = 0;
+        this.spTexts.alpha = 0;
+
+        if (this.game.cleanChecker.isClean) {
+            Utils.switchSprite(this.txt_completionDone, true);
+            Utils.switchSprite(this.txt_cleanOk, true);
+            Utils.switchSprite(this.txt_completion, false);
+            Utils.switchSprite(this.txt_cleanNo, false);
+        } else {
+            Utils.switchSprite(this.txt_completion, true);
+            Utils.switchSprite(this.txt_cleanNo, true);
+            Utils.switchSprite(this.txt_completionDone, false);
+            Utils.switchSprite(this.txt_cleanOk, false);
+            this.txt_completion.text = String(this.game.cleanChecker.cleaningPercent).replace('.', ',') + '%';
+        }
+
+        this.game.tweens.add({
+            targets: this.spTexts,
+            scale: 1,
+            duration: 400,
+            ease: 'Back.Out',
+            delay: upTime * 1.1
+        });
+        this.game.tweens.add({
+            targets: this.spTexts,
+            alpha: 1
+            duration: 600,
+            ease: 'Sine.easeInOut',
+            delay: upTime * 1.1
+        });
+
+        if (this.game.cleanChecker.isClean) {
+            this.game.time.delayedCall(upTime + textTime * 0.4, () => {
+                localThis.sparklesEmitter.start();
+                if (localThis.game.checkGameOver())
+                    localThis.game.startGameOver();
+            });
+
+            this.game.tweens.add({
+                targets: this.sp,
+                x: 1600,
+                rotation: 3.14,
+                duration: 750,
+                ease: 'Back.In',
+                delay: upTime + textTime * 1.75,
+                onComplete: () => { 
+                    if (localThis.game.dropCurrentPlate())
+                        localThis.game.nextPlate();
+                }
+            });
+
+        } else {
+            Utils.switchSprite(this.game.redFail, true);
+            this.game.redFail.alpha = 0;
+            
+            this.game.tweens.add({
+                targets: this.game.redFail,
+                onStart: () => { localThis.game.redFail.alpha = 1},
+                alpha: 0,
+                duration: 1200,
+                ease: 'Sine.In',
+                delay: upTime + textTime * 0.4,
+                onComplete: () => { Utils.switchSprite(localThis.game.redFail, false); }
+            });
+
+            this.game.tweens.add({
+                targets: this.spTexts,
+                alpha: 0
+                duration: 800,
+                ease: 'Sine.easeInOut',
+                delay: upTime + textTime * 2.0,
+                onComplete: () => { 
+                    Utils.switchSprite(localThis.spTexts, false);
+                    localThis.game.setStep(GameStep.PLAY);
+            });
+        }
+
+
     }
 
 
     public scrape(x: number, y: number) {
-
-        console.log('scrape: ' + this.game.hasStep(GameStep.PLAY));
         if (!this.game.hasStep(GameStep.PLAY)) return;
 
         //const localPos = this.scrapeZone.getLocalPoint(x, y);
