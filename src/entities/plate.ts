@@ -15,6 +15,8 @@ export default class Plate {
     stains: Phaser.GameObjects.RenderTexture;
     //foam: Phaser.GameObjects.Container;
 
+    currentTween: Phaser.Tweens.Tween;
+
     constructor (wGame: WashGame, plateId: number) {
         this.game = wGame;
         this.plateId = plateId;
@@ -65,8 +67,8 @@ export default class Plate {
             const stainSprite = this.game.add.sprite( -500, -500, `stain_${col}_${colIndex}`);
 
             const scaleSide = Utils.getRandomSide();
-            stainSprite.setScale(1.0 + scaleSide * Math.random() * Cs.STAIN_SCALE_RATIO * (scaleSide > 0 ? 3 : 1));
-            stainSprite.setRotation(Math.random() * 6.28);
+            stainSprite.setScale(1.0 + scaleSide * Utils.getRandom() * Cs.STAIN_SCALE_RATIO * (scaleSide > 0 ? 3 : 1));
+            stainSprite.setRotation(Utils.getRandom() * 6.28);
 
             this.stains.draw(stainSprite, pos.x, pos.y);
             stainSprite.destroy();
@@ -92,10 +94,35 @@ export default class Plate {
     public hide() {
         this.setPos(Cs.PLATE_POS.X, Cs.PLATE_POS.Y - 1200);
         this.sp.setActive(false);
+        this.sp.setVisible(false);
     }
 
     public show() {
         this.sp.setActive(true);
+        this.sp.setVisible(true);
+    }
+
+
+    public killCurrentTween() {
+        if (!this.currentTween) return;
+
+        this.currentTween.stop();
+        this.currentTween = null;
+    }
+
+
+    public placeIntoSink() {
+        const sinkPos = { x: 530 + Utils.getRandomInt(300) , y: 830 - Utils.getRandomInt(40) };
+        this.setPos(sinkPos.x, sinkPos.y - 10 + Math.random() * 10);
+        this.sp.setRotation(Utils.getRandom() + 1.5 * Utils.getRandomSide());
+        this.show();
+
+        this.currentTween = this.game.tweens.add({
+                targets: this.sp,
+                y: sinkPos.y,
+                duration: 6000 + Utils.getRandomInt(4, true) * 1000,
+                ease: 'Elastic.Out',
+        });
     }
 
 

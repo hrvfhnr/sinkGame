@@ -24,3 +24,18 @@
 - bouton start / restart
 - random seedé => `npm install --save rand-seed`
 - envoi du score dans intra machin ? 
+
+
+
+### TODO : 
+- rinse & check : 
+    - anim de plouf
+    - remontée avec le pourcentage de complétion
+    - anim de retrait d'assiette si ok
+- game over avec résultat final
+
+BONUS: 
+- mousse quand on gratte
+- robinet qui goutte
+- anim d'eau dans l'evier
+- sons
