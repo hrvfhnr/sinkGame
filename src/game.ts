@@ -26,9 +26,7 @@ export default class WashGame extends Phaser.Scene {
     deltaTime: number | null
     timeText: Phaser.GameObjects.Text;
 
-    cleanCompletionText: Phaser.GameObjects.Text;
 
-    //txt_clickTo: Phaser.GameObjects.Sprite;
     txt_startLogo: Phaser.GameObjects.Sprite;
     txt_rinse: Phaser.GameObjects.Sprite;
 
@@ -93,7 +91,7 @@ export default class WashGame extends Phaser.Scene {
         this.load.image('start_go', 'assets/texts/go.png');
 
         this.load.image('clean_ok', 'assets/texts/propre_ok.png');
-        this.load.image('clean_nope', 'assets/texts/propre_no.png');
+        this.load.image('clean_nope', 'assets/texts/propre_no_2.png');
         this.load.image('clean_100', 'assets/texts/100.png');
 
         
@@ -110,7 +108,6 @@ export default class WashGame extends Phaser.Scene {
     }
 
     create () {
-        this.initFonts();
         this.initLayers();
         this.initBrushesCollection();
 
@@ -168,21 +165,28 @@ export default class WashGame extends Phaser.Scene {
         this.controls.init(this, this.sponge);
 
 
-        //this.txt_clickTo = this.add.sprite(Cs.SCREEN_SIZE.WIDTH / 2, 300, 'click_to');
-        this.txt_startLogo = this.add.sprite(Cs.SCREEN_SIZE.WIDTH / 2, 445, 'start_logo');
+        this.initFonts();
+
+
+        this.txt_startLogo = this.add.sprite(Cs.SCREEN_SIZE.WIDTH / 2 - 200, 400, 'start_logo');
         this.txt_startLogo.alpha = 0;
-        /*this.tweens.add({
-            targets: this.txt_clickTo,
-            y: 330,
-            duration: 750,
-            ease: 'Back.Out'
-        });*/
         const localThis = this;
+
+        this.tweens.add({
+            targets: this.sponge,
+            x: Cs.SCREEN_SIZE.WIDTH / 2,
+            duration: 500,
+            ease: 'Back.Out',
+            delay: 500
+        });
+
+
         this.tweens.add({
             targets: this.txt_startLogo,
-            y: 400,
+            x: Cs.SCREEN_SIZE.WIDTH / 2,
             duration: 750,
             ease: 'Back.Out',
+            delay: 600
             onComplete: () => {
                 localThis.introLock = false;
             }
@@ -192,6 +196,7 @@ export default class WashGame extends Phaser.Scene {
             alpha: 1,
             duration: 750,
             ease: 'Sine.easeInOut',
+            delay: 600
         });
     }
 
@@ -204,8 +209,9 @@ export default class WashGame extends Phaser.Scene {
             },
             active: function () {
                 localThis.timeText = localThis.add.text(Cs.SCREEN_SIZE.WIDTH - 255, 5, '00:00:00', { fontFamily: 'Double_Bubble_shadow', fontSize: 64, color: '#FF4F00' });
-                localThis.cleanCompletionText = localThis.add.text(Cs.PLATE_POS.X - 50, Cs.PLATE_POS.X - 50, '', { fontFamily: 'Double_Bubble_shadow', fontSize: 72, color: '#FF4F00' });
-                localThis.cleanCompletionText.setActive(false);
+
+                for (const plate of localThis.plates)
+                    plate.initCompletionText();
             }
         });
     }
@@ -255,13 +261,12 @@ export default class WashGame extends Phaser.Scene {
             Difficulty.EASY,
             Difficulty.STANDARD,
             Difficulty.STANDARD,
-            Difficulty.HARD];
+        Difficulty.HARD];
 
         for(const diff of diffs.reverse()) {
             const plate = new Plate(this, (this.plates.length === 4) ? 0 : Utils.getRandomInt(7));
             this.plates.unshift(plate);
             plate.initStains(diff);
-            //plate.hide();
             plate.placeIntoSink();
         }
     }
@@ -457,7 +462,7 @@ export default class WashGame extends Phaser.Scene {
         this.tweens.add({
             targets: plate.sp,
             y: Cs.PLATE_POS.Y + 450,
-            rotation: 0,
+            rotation: 0.5,
             duration: 460,
             ease: 'Sine.easeInOut',
             delay: initialDelay + downTime,
@@ -466,7 +471,7 @@ export default class WashGame extends Phaser.Scene {
         this.tweens.add({
             targets: plate.sp,
             y: Cs.PLATE_POS.Y + 470,
-            rotation: 0,
+            rotation: -0.4,
             duration: 430,
             ease: 'Quad.easeInOut',
             delay: initialDelay + downTime + 450 * 2,

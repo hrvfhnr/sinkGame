@@ -13,6 +13,14 @@ export default class Plate {
     sp: Phaser.GameObjects.Container;
     bgPlate: Phaser.GameObjects.Sprite;
     stains: Phaser.GameObjects.RenderTexture;
+    spTexts: Phaser.GameObjects.Container;
+
+    txt_completion: Phaser.GameObjects.Text;
+    txt_completionDone: Phaser.GameObjects.Sprite;
+    txt_cleanNo: Phaser.GameObjects.Sprite;
+    txt_cleanOk: Phaser.GameObjects.Sprite;
+    
+
     //foam: Phaser.GameObjects.Container;
 
     currentTween: Phaser.Tweens.Tween;
@@ -35,8 +43,32 @@ export default class Plate {
 
         this.bgPlate = this.game.add.sprite(plateOffsetInit.x, plateOffsetInit.y, 'plate_' + String(this.plateId));
         this.stains = this.game.add.renderTexture(0, 0, Cs.STAIN_RENDER_SIZE, Cs.STAIN_RENDER_SIZE);
-        
-        this.sp.add([this.bgPlate, this.stains]);
+        this.spTexts = this.game.add.container(0, -20);
+
+        this.sp.add([this.bgPlate, this.stains, this.spTexts]);
+
+        this.txt_completionDone = this.game.add.sprite(0, 0, 'clean_100');
+        this.txt_cleanNo = this.game.add.sprite(0, 65, 'clean_nope');
+        this.txt_cleanOk = this.game.add.sprite(-1, 62, 'clean_ok');
+
+        this.spTexts.add([this.txt_completionDone, this.txt_cleanNo, this.txt_cleanOk]);
+
+        Utils.switchSprite(this.txt_completionDone, false);
+        Utils.switchSprite(this.txt_cleanOk, false);
+        Utils.switchSprite(this.txt_cleanNo, false);
+        this.spTexts.setVisible(false);
+        this.spTexts.setActive(false);
+
+    }
+
+    public initCompletionText() {
+        this.txt_completion = this.game.add.text(0, 0, '00,00%', { fontFamily: 'Double_Bubble_shadow', fontSize: 92, color: '#FF4F00' });
+        this.txt_completion.setOrigin(0.5);
+        this.spTexts.add(this.txt_completion);
+
+
+        this.txt_completion.setVisible(false);
+        this.txt_completion.setActive(false);
     }
 
     public initStains(diff: Difficulty) {
@@ -128,6 +160,7 @@ export default class Plate {
 
     public rinseResult() {
         const localThis = this;
+
 
         this.game.tweens.add({
             targets: this.sp,

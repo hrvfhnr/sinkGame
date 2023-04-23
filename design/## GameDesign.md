@@ -30,13 +30,16 @@
 ### TODO : 
 X github pages 
 - rinse & check : 
-    - anim de plouf
+    X anim de plouf
     - remontée avec le pourcentage de complétion
     - anim de retrait d'assiette si ok
 - game over avec résultat final
 
+
 BONUS: 
-- mousse quand on gratte
+- mini assiettes pour voir ce qu'il reste à faire + clairement
+- mousse qui dépasse de l'évier sur le yoyo de rinse ? 
+- mousse quand on gratte ? 
 - robinet qui goutte
 - anim d'eau dans l'evier
-X sons)
+X sons
