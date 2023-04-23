@@ -26,9 +26,11 @@ export default class Controls {
         }, this);
 
 
+        /*
         this.input.keyboard.on('keydown-C', event => {
             this.game.cleanChecker.check();
         }, this);
+        */
     }
 
     private onMouseMove(pointer) {

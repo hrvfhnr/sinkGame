@@ -19,6 +19,10 @@ export default class Plate {
     txt_completionDone: Phaser.GameObjects.Sprite;
     txt_cleanNo: Phaser.GameObjects.Sprite;
     txt_cleanOk: Phaser.GameObjects.Sprite;
+
+    partShape: Phaser.Geom.Circle;
+    sparklesParts: Phaser.GameObjects.Particles.Particle;
+    sparklesEmitter: Phaser.GameObjects.Particles.ParticleEmitter;
     
 
     //foam: Phaser.GameObjects.Container;
@@ -59,6 +63,17 @@ export default class Plate {
         this.spTexts.setVisible(false);
         this.spTexts.setActive(false);
 
+        this.partShape = new Phaser.Geom.Circle(0, 0, 256);
+        this.sparklesEmitter = this.game.add.particles(0, 0, 'whiteSparkles', {
+            lifespan:  1500,
+            speed:     24,
+            scale:     { start: 0.4, end: 0 },
+            emitting: false,
+            quantity: 10,
+            emitZone:  { type: 'edge', source: this.partShape, quantity: 42 },
+            duration: 300
+        });
+        this.sp.add(this.sparklesEmitter);
     }
 
     public initCompletionText() {
@@ -204,6 +219,24 @@ export default class Plate {
         });
 
         if (this.game.cleanChecker.isClean) {
+            this.game.time.delayedCall(upTime + textTime * 0.4, () => {
+                localThis.sparklesEmitter.start();
+                if (localThis.game.checkGameOver())
+                    localThis.game.startGameOver();
+            });
+
+            this.game.tweens.add({
+                targets: this.sp,
+                x: 1600,
+                rotation: 3.14,
+                duration: 750,
+                ease: 'Back.In',
+                delay: upTime + textTime * 1.75,
+                onComplete: () => { 
+                    if (localThis.game.dropCurrentPlate())
+                        localThis.game.nextPlate();
+                }
+            });
 
         } else {
             Utils.switchSprite(this.game.redFail, true);
@@ -236,8 +269,6 @@ export default class Plate {
 
 
     public scrape(x: number, y: number) {
-
-        console.log('scrape: ' + this.game.hasStep(GameStep.PLAY));
         if (!this.game.hasStep(GameStep.PLAY)) return;
 
         //const localPos = this.scrapeZone.getLocalPoint(x, y);

@@ -42,6 +42,7 @@ export default class CleanChecker {
 
     private resetCleanState() {
         this.isClean = false;
+        this.canBeLastScraped = false;
         this.cleaningPercent = 0.0;
     }
 

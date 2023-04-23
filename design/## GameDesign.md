@@ -29,17 +29,19 @@
 
 ### TODO : 
 X github pages 
-- rinse & check : 
+X rinse & check : 
     X anim de plouf
-    - remontée avec le pourcentage de complétion
-    - anim de retrait d'assiette si ok
+    X remontée avec le pourcentage de complétion
+        X fail
+        X success
 - game over avec résultat final
 
 
 BONUS: 
 - mini assiettes pour voir ce qu'il reste à faire + clairement
-- mousse qui dépasse de l'évier sur le yoyo de rinse ? 
+X sparkles sur le completion success
 - mousse quand on gratte ? 
-- robinet qui goutte
+- mousse qui dépasse de l'évier sur le yoyo de rinse ?
 - anim d'eau dans l'evier
+- robinet qui goutte
 X sons

@@ -98,7 +98,8 @@ export default class WashGame extends Phaser.Scene {
         this.load.image('clean_nope', 'assets/texts/propre_no_2.png');
         this.load.image('clean_100', 'assets/texts/100.png');
 
-        
+        this.load.image('whiteSparkles', 'assets/particles/whiteSparkles.png');
+
 
         //plates
         for (let i = 0; i < 7; i++)
@@ -378,9 +379,8 @@ export default class WashGame extends Phaser.Scene {
     public startGame() {
 
         const localThis = this;
-        const callback = () => { localThis.setStep(GameStep.PLAY) };
         
-        this.nextPlate(callback);
+        this.nextPlate();
         this.tweens.add({
             targets: this.txt_rinse,
             x: Cs.RINSE_POS.X,
@@ -392,8 +392,16 @@ export default class WashGame extends Phaser.Scene {
 
     }
 
+    public dropCurrentPlate(): boolean {
+        if (!this.plates.length) return false;
 
-    public nextPlate(callback) {
+        const plate = this.plates.shift();
+        Utils.switchSprite(plate.sp, false);
+        return true;
+    }
+
+
+    public nextPlate() {
         const plate = this.getCurrentPlate();
         if (!plate) return; //TODO : game over
 
@@ -412,9 +420,9 @@ export default class WashGame extends Phaser.Scene {
             ease: 'Back.InOut',
             delay: 350,
             onComplete: () => { 
-                localThis.startTime = new Date().getTime();
-                if (callback)
-                    callback();
+                if (!localThis.startTime)
+                    localThis.startTime = new Date().getTime();
+                localThis.setStep(GameStep.PLAY);
              }
         });
     } 
@@ -484,8 +492,19 @@ export default class WashGame extends Phaser.Scene {
             delay: initialDelay + downTime + 450 * 2,
             yoyo: true,
             onComplete: () => { plate.rinseResult(); }
-        });
-        
+        });   
+    }
+
+    public checkGameOver(): boolean {
+        return this.plates.length < 1 && this.cleanChecker.isClean;
+    }
+
+    public startGameOver() {
+        this.setStep(GameStep.GAME_OVER);
+        console.log("GAME OVER");
+
+        //TODO
+
     }
 
 
@@ -498,12 +517,16 @@ export default class WashGame extends Phaser.Scene {
     }
 
     private isGamingStep() {
-        return ![GameStep.INTRO, GameStep.STARTING, GameStep.GAME_OVER].find( s => s === this.step)
+        const localThis = this;
+        return ![GameStep.INTRO, GameStep.STARTING, GameStep.GAME_OVER].find( s => { localThis.hasStep(s) });
     }
 
 
     private updateGameTime() {
-        if (!this.startTime || !this.timeText || !this.isGamingStep()) return;
+        if (!this.startTime || !this.timeText || !this.isGamingStep()) { 
+            //console.log("no update time");
+            return;
+        }
 
 
         this.deltaTime = (new Date().getTime() - this.startTime);
