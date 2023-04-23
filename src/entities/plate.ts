@@ -120,7 +120,7 @@ export default class Plate {
         this.currentTween = this.game.tweens.add({
                 targets: this.sp,
                 y: sinkPos.y,
-                duration: 6000 + Utils.getRandomInt(3, true) * 1000,
+                duration: 6000 + Utils.getRandomInt(4, true) * 1000,
                 ease: 'Elastic.Out',
         });
     }
