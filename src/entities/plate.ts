@@ -2,7 +2,7 @@ import * as Phaser from 'phaser';
 import WashGame from "../game";
 import Cs from '../cs';
 import Utils from '../Utils';
-import { StainColor, Difficulty, BrushType } from '../types';
+import { StainColor, Difficulty, BrushType, GameStep } from '../types';
 
 export default class Plate {
 
@@ -128,6 +128,10 @@ export default class Plate {
 
 
     public scrape(x: number, y: number) {
+
+        console.log('scrape: ' + this.game.hasStep(GameStep.PLAY));
+        if (!this.game.hasStep(GameStep.PLAY)) return;
+
         //const localPos = this.scrapeZone.getLocalPoint(x, y);
         //this.scrapeZone.draw('brush_eps_75', localPos.x, localPos.y);
         const localPos = this.stains.getLocalPoint(x, y);

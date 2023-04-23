@@ -364,9 +364,11 @@ export default class WashGame extends Phaser.Scene {
     }
 
     public startGame() {
-        this.step = GameStep.PLAY;
-        this.nextPlate();
 
+        const localThis = this;
+        const callback = () => { localThis.step = GameStep.PLAY };
+        
+        this.nextPlate(callback);
         this.tweens.add({
             targets: this.txt_rinse,
             x: Cs.RINSE_POS.X,
@@ -379,12 +381,12 @@ export default class WashGame extends Phaser.Scene {
     }
 
 
-    public nextPlate() {
+    public nextPlate(callback) {
         const plate = this.getCurrentPlate();
         if (!plate) return; //TODO : game over
 
         plate.killCurrentTween();
-        
+
         this.cleanChecker.initWithStains(plate.stains);
 
         const localThis = this;
@@ -397,7 +399,11 @@ export default class WashGame extends Phaser.Scene {
             duration: 1000,
             ease: 'Back.InOut',
             delay: 350,
-            onComplete: () => { localThis.startTime = new Date().getTime(); }
+            onComplete: () => { 
+                localThis.startTime = new Date().getTime();
+                if (callback)
+                    callback();
+             }
         });
     }
 
