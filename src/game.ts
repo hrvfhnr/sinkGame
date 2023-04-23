@@ -35,6 +35,8 @@ export default class WashGame extends Phaser.Scene {
     txt_start_1: Phaser.GameObjects.Sprite;
     txt_start_go: Phaser.GameObjects.Sprite;
 
+    redFail: Phaser.GameObjects.Image;
+
     introLock: boolean;
 
 
@@ -67,6 +69,8 @@ export default class WashGame extends Phaser.Scene {
         this.load.image('background', 'assets/background.png');
         this.load.image('backgroundFog', 'assets/bgFog.png');
         this.load.image('foreground', 'assets/foreground.png');
+
+        this.load.image('redFail', 'assets/redFail.png');
 
         this.load.image('mug', 'assets/mug.png');
         this.load.image('cup', 'assets/coffeeCup.png');
@@ -120,6 +124,10 @@ export default class WashGame extends Phaser.Scene {
 
         const foreground = this.add.image(Cs.SCREEN_SIZE.WIDTH / 2, Cs.SCREEN_SIZE.HEIGHT, 'foreground');
         this.addToLayer(foreground, Cs.LAYER.FG);
+
+        this.redFail = this.add.image(Cs.SCREEN_SIZE.WIDTH / 2, Cs.SCREEN_SIZE.HEIGHT / 2, 'redFail');
+        this.addToLayer(this.redFail, Cs.LAYER.FX);
+        Utils.switchSprite(this.redFail, false);
 
         const bgMug = this.add.image(160, 550, 'mug');
         this.addToLayer(bgMug, Cs.LAYER.BG_0);
@@ -179,7 +187,6 @@ export default class WashGame extends Phaser.Scene {
             ease: 'Back.Out',
             delay: 500
         });
-
 
         this.tweens.add({
             targets: this.txt_startLogo,

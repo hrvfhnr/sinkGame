@@ -42,7 +42,7 @@ export default class Utils {
     }
 
 
-    static switchSprite(sp: Phaser.GameObjects.Sprite, visible: boolean) {
+    static switchSprite(sp: Phaser.GameObjects.Sprite | Phaser.GameObjects.Text | Phaser.GameObjects.Container | Phaser.GameObjects.Image, visible: boolean) {
         if (!sp) return;
         sp.setActive(visible);
         sp.setVisible(visible);

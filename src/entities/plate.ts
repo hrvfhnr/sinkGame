@@ -160,15 +160,78 @@ export default class Plate {
 
     public rinseResult() {
         const localThis = this;
-
+        const upTime = 1000;
+        const textTime = 550;
 
         this.game.tweens.add({
             targets: this.sp,
             y: Cs.PLATE_POS.Y,
-            duration: 1000,
-            ease: 'Back.Out',
-            onComplete: () => { localThis.game.setStep(GameStep.PLAY) }
+            duration: upTime,
+            ease: 'Back.Out'
         });
+
+        
+        Utils.switchSprite(this.spTexts, true);
+        this.spTexts.scale = 0;
+        this.spTexts.alpha = 0;
+
+        if (this.game.cleanChecker.isClean) {
+            Utils.switchSprite(this.txt_completionDone, true);
+            Utils.switchSprite(this.txt_cleanOk, true);
+            Utils.switchSprite(this.txt_completion, false);
+            Utils.switchSprite(this.txt_cleanNo, false);
+        } else {
+            Utils.switchSprite(this.txt_completion, true);
+            Utils.switchSprite(this.txt_cleanNo, true);
+            Utils.switchSprite(this.txt_completionDone, false);
+            Utils.switchSprite(this.txt_cleanOk, false);
+            this.txt_completion.text = String(this.game.cleanChecker.cleaningPercent).replace('.', ',') + '%';
+        }
+
+        this.game.tweens.add({
+            targets: this.spTexts,
+            scale: 1,
+            duration: 400,
+            ease: 'Back.Out',
+            delay: upTime * 1.1
+        });
+        this.game.tweens.add({
+            targets: this.spTexts,
+            alpha: 1
+            duration: 600,
+            ease: 'Sine.easeInOut',
+            delay: upTime * 1.1
+        });
+
+        if (this.game.cleanChecker.isClean) {
+
+        } else {
+            Utils.switchSprite(this.game.redFail, true);
+            this.game.redFail.alpha = 0;
+            
+            this.game.tweens.add({
+                targets: this.game.redFail,
+                onStart: () => { localThis.game.redFail.alpha = 1},
+                alpha: 0,
+                duration: 1200,
+                ease: 'Sine.In',
+                delay: upTime + textTime * 0.4,
+                onComplete: () => { Utils.switchSprite(localThis.game.redFail, false); }
+            });
+
+            this.game.tweens.add({
+                targets: this.spTexts,
+                alpha: 0
+                duration: 800,
+                ease: 'Sine.easeInOut',
+                delay: upTime + textTime * 2.0,
+                onComplete: () => { 
+                    Utils.switchSprite(localThis.spTexts, false);
+                    localThis.game.setStep(GameStep.PLAY);
+            });
+        }
+
+
     }
 
 
