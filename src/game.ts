@@ -9,7 +9,7 @@ import CleanChecker from "./CleanChecker";
 
 export default class WashGame extends Phaser.Scene {
 
-    step: GameStep;
+    private step: GameStep;
     controls: Controls;
     sponge: Sponge;
     plates: Plate[];
@@ -43,7 +43,7 @@ export default class WashGame extends Phaser.Scene {
     constructor () {
         super('WashGame');
 
-        this.step = GameStep.INTRO;
+        this.setStep(GameStep.INTRO);
 
         this.startTime = null;
         this.deltaTime = null;
@@ -273,10 +273,9 @@ export default class WashGame extends Phaser.Scene {
 
 
     update(time: number, delta: number): void {
-
-
         this.updateGameTime();
 
+        /*
         switch(this.step) {
             case GameStep.INTRO:
 
@@ -290,7 +289,7 @@ export default class WashGame extends Phaser.Scene {
             case GameStep.RINSE:
 
                 break;
-                case GameStep.CLEAN_CHECK:
+            case GameStep.CLEAN_CHECK:
 
                 break;
             case GameStep.NEXT_PLATE:
@@ -300,10 +299,11 @@ export default class WashGame extends Phaser.Scene {
 
                 break;
         }
+        */
     }
 
     public prepareStart() {
-        this.step = GameStep.STARTING;
+        this.setStep(GameStep.STARTING);
 
         const localThis = this;
 
@@ -366,7 +366,7 @@ export default class WashGame extends Phaser.Scene {
     public startGame() {
 
         const localThis = this;
-        const callback = () => { localThis.step = GameStep.PLAY };
+        const callback = () => { localThis.setStep(GameStep.PLAY) };
         
         this.nextPlate(callback);
         this.tweens.add({
@@ -375,7 +375,7 @@ export default class WashGame extends Phaser.Scene {
             rotation: 0,
             duration: 1000,
             ease: 'Back.Out',
-            delay: 3000,
+            delay: 2000,
         });
 
     }
@@ -405,12 +405,85 @@ export default class WashGame extends Phaser.Scene {
                     callback();
              }
         });
+    } 
+
+
+    public startRinse() {
+        if (!this.hasStep(GameStep.PLAY)) return;
+
+        this.setStep(GameStep.RINSE);
+        const plate = this.getCurrentPlate();
+
+        this.cleanChecker.check();  
+        
+        const initialDelay = 350;
+        const downTime = 650;
+
+        const localThis = this;
+
+        this.tweens.add({
+            targets: this.txt_rinse,
+            alpha: 1
+            duration: 150,
+            ease: 'Sine.easeInOut',
+            delay: 0,
+        });
+        this.tweens.add({
+            targets: this.txt_rinse,
+            scale: 0.97
+            duration: 150,
+            ease: 'Sine.easeInOut',
+            yoyo: true
+            delay: 0,
+        });
+
+        this.tweens.add({
+            targets: this.txt_rinse,
+            alpha: 0.5
+            duration: 300,
+            ease: 'Sine.easeIn',
+            delay: 150,
+        });
+
+
+        this.tweens.add({
+            targets: plate.sp,
+            y: Cs.PLATE_POS.Y + 550,
+            rotation: 0,
+            duration: downTime,
+            ease: 'Back.In',
+            delay: initialDelay,
+        });
+        this.tweens.add({
+            targets: plate.sp,
+            y: Cs.PLATE_POS.Y + 450,
+            rotation: 0,
+            duration: 460,
+            ease: 'Sine.easeInOut',
+            delay: initialDelay + downTime,
+            yoyo: true,
+        });
+        this.tweens.add({
+            targets: plate.sp,
+            y: Cs.PLATE_POS.Y + 470,
+            rotation: 0,
+            duration: 430,
+            ease: 'Quad.easeInOut',
+            delay: initialDelay + downTime + 450 * 2,
+            yoyo: true,
+            onComplete: () => { plate.rinseResult(); }
+        });
+        
     }
+
 
     public hasStep(s: GameStep): boolean {
         return this.step === s;
     }
 
+    public setStep(s: GameStep) {
+        this.step = s;
+    }
 
     private isGamingStep() {
         return ![GameStep.INTRO, GameStep.STARTING, GameStep.GAME_OVER].find( s => s === this.step)

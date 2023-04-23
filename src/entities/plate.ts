@@ -126,6 +126,18 @@ export default class Plate {
     }
 
 
+    public rinseResult() {
+        const localThis = this;
+
+        this.game.tweens.add({
+            targets: this.sp,
+            y: Cs.PLATE_POS.Y,
+            duration: 1000,
+            ease: 'Back.Out',
+            onComplete: () => { localThis.game.setStep(GameStep.PLAY) }
+        });
+    }
+
 
     public scrape(x: number, y: number) {
 

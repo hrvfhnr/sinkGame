@@ -28,6 +28,7 @@
 
 
 ### TODO : 
+X github pages 
 - rinse & check : 
     - anim de plouf
     - remontée avec le pourcentage de complétion
@@ -38,4 +39,4 @@ BONUS:
 - mousse quand on gratte
 - robinet qui goutte
 - anim d'eau dans l'evier
-- sons
+X sons)

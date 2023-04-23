@@ -18,6 +18,7 @@ export default class Controls {
         this.input.on('pointerdown', this.getLock, this);
         this.input.on('pointermove', this.onMouseMove, this);
         this.input.keyboard.on('keydown-Q', this.releaseLock, this);
+        this.input.keyboard.on('keydown-SPACE', this.rinse, this);
         
         this.input.manager.events.on('pointerlockchange', event => {
             //### TODO    
@@ -45,8 +46,8 @@ export default class Controls {
                 this.sponge.bumpFromLogo(pointer.x, pointer.y);
                 this.game.hideLogo();
 
-                this.game.prepareStart();
-                //this.game.startGame();
+                //this.game.prepareStart();
+                this.game.startGame();
                 
                 this.input.mouse.requestPointerLock();
             }
@@ -60,6 +61,10 @@ export default class Controls {
     private releaseLock(event) {
         if (this.input.mouse.locked)
             this.input.mouse.releasePointerLock();
+    }
+
+    private rinse() {
+        this.game.startRinse();
     }
 
 
