@@ -293,15 +293,18 @@ export default class WashGame extends Phaser.Scene {
             -33, 109,
              -43, 73]);
         this.foamPartEmitter = this.add.particles(-0, -0, 'foams', {
-            frame: ['foam_0', 'foam_1', 'foam_2', 'bubble_1'],
-            lifespan:  { min: 1200, max:2000 },
-            speed:     1,
-            alpha:     { start: 1, end: 0, ease: 'Quad.easeOut' },
-            scale:     { min: 0.5, max: 1 },
+            frame: ['foam_0', 'foam_0', 'foam_1', 'foam_2', 'bubble_1', 'bubble_2'],
+            lifespan:  { min: 2500, max: 6000 },
+            speedY:     { min: -4, max : 4 },
+            speedX:     {min: -4, max: 4 },
+            alpha:     { start: 1, end: 0, ease: 'Expo.easeOut'},
+            scale:     { min: 0.5, max: 1},
+            rotate:     {min: -180, max: 180},
+            gravityY: 1.5,
+            accelerationY: { min: 1.01, max: 1.04 },
             emitting: true,
-            quantity: 1,
-            emitZone:  { type: 'edge', source: this.foamShape, quantity: 15 },
-            //duration: 200
+            quantity: 2,
+            emitZone:  { type: 'edge', source: this.foamShape, quantity: 30 },
         });
         this.foamPartEmitter.alpha = 0;
         
