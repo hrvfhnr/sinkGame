@@ -25,6 +25,7 @@ export default class WashGame extends Phaser.Scene {
     startTime: number | null;
     deltaTime: number | null
     timeText: Phaser.GameObjects.Text;
+    finalTimeText: Phaser.GameObjects.Text;
 
 
     txt_startLogo: Phaser.GameObjects.Sprite;
@@ -36,6 +37,9 @@ export default class WashGame extends Phaser.Scene {
     txt_start_go: Phaser.GameObjects.Sprite;
 
     redFail: Phaser.GameObjects.Image;
+
+    gameOverPartShape: Phaser.Geom.Rectangle;
+    gameOverFoamEmitter: Phaser.GameObjects.Particles.ParticleEmitter;
 
     introLock: boolean;
 
@@ -97,8 +101,11 @@ export default class WashGame extends Phaser.Scene {
         this.load.image('clean_ok', 'assets/texts/propre_ok.png');
         this.load.image('clean_nope', 'assets/texts/propre_no_2.png');
         this.load.image('clean_100', 'assets/texts/100.png');
+        this.load.image('gameOver_text', 'assets/texts/gameOverText.png');
 
+        //particles
         this.load.image('whiteSparkles', 'assets/particles/whiteSparkles.png');
+        this.load.atlas('foams', 'assets/particles/foams.png', 'assets/particles/foam.json');
 
 
         //plates
@@ -172,10 +179,8 @@ export default class WashGame extends Phaser.Scene {
         
         this.controls = new Controls();
         this.controls.init(this, this.sponge);
-
-
         this.initFonts();
-
+        
 
         this.txt_startLogo = this.add.sprite(Cs.SCREEN_SIZE.WIDTH / 2 - 200, 400, 'start_logo');
         this.txt_startLogo.alpha = 0;
@@ -209,6 +214,44 @@ export default class WashGame extends Phaser.Scene {
     }
 
 
+    initParticlesEmitters() {
+        //gameOver background
+        this.gameOverPartShape = new Phaser.Geom.Rectangle(0, Cs.SCREEN_SIZE.HEIGHT * 0.5, Cs.SCREEN_SIZE.WIDTH, Cs.SCREEN_SIZE.HEIGHT * 1.5);
+        this.gameOverFoamEmitter = this.add.particles(0, 0, 'foams', {
+            frame: ['foam_0', 'foam_1']
+            lifespan:  18000,
+            particleBringToTop: false,
+            gravityY: -4,
+            speed:     1,
+            scale:      { start: 0.2, end: 1.3},
+            alpha:      { start: 1.0, end: 0.0, ease: 'Expo.easeIn'},
+            angle:  {min: -45, max : 45},
+            emitting: false,
+            quantity: 1,
+            emitZone:  { type: 'random', source: this.gameOverPartShape, quantity: 1 },
+            //duration: 300
+        });
+        this.addToLayer(this.gameOverFoamEmitter, Cs.LAYER.GAME_OVER_0);
+
+        //old school manual pre-warm
+        this.gameOverFoamEmitter.alpha = 0;
+        this.gameOverFoamEmitter.start();
+        const localThis = this;
+        this.time.delayedCall(13000, () => {
+            localThis.gameOverFoamEmitter.pause();
+        });
+
+    }
+
+
+    public switchGameOverParticles(active: boolean) {
+        if (active)
+            this.gameOverFoamEmitter.start();
+        else
+            this.gameOverFoamEmitter.stop();
+    }
+
+
     private initFonts() {
         const localThis = this;
         WebFont.load({
@@ -217,6 +260,13 @@ export default class WashGame extends Phaser.Scene {
             },
             active: function () {
                 localThis.timeText = localThis.add.text(Cs.SCREEN_SIZE.WIDTH - 255, 5, '00:00:00', { fontFamily: 'Double_Bubble_shadow', fontSize: 64, color: '#FF4F00' });
+                localThis.addToLayer(localThis.timeText, Cs.LAYER.FX);
+                localThis.finalTimeText = localThis.add.text(Cs.SCREEN_SIZE.WIDTH / 2, Cs.SCREEN_SIZE.HEIGHT / 2, 
+                    'Bravo!\nVaisselle propre\nen\n' + '1min 23s 03', 
+                    { fontFamily: 'Double_Bubble_shadow', fontSize: 64, color: '#FF4F00', align: 'center' });
+                localThis.finalTimeText.setOrigin(0.5);
+                localThis.addToLayer(localThis.finalTimeText, Cs.LAYER.GAME_OVER_1);
+                Utils.switchSprite(localThis.finalTimeText, false);
 
                 for (const plate of localThis.plates)
                     plate.initCompletionText();
@@ -379,6 +429,8 @@ export default class WashGame extends Phaser.Scene {
     public startGame() {
 
         const localThis = this;
+
+        this.initParticlesEmitters();
         
         this.nextPlate();
         this.tweens.add({
@@ -403,7 +455,7 @@ export default class WashGame extends Phaser.Scene {
 
     public nextPlate() {
         const plate = this.getCurrentPlate();
-        if (!plate) return; //TODO : game over
+        if (!plate) return;
 
         plate.killCurrentTween();
 
@@ -501,9 +553,29 @@ export default class WashGame extends Phaser.Scene {
 
     public startGameOver() {
         this.setStep(GameStep.GAME_OVER);
-        console.log("GAME OVER");
 
-        //TODO
+        this.gameOverFoamEmitter.resume();
+        this.input.mouse.releasePointerLock();
+
+        const localThis = this;
+        this.tweens.add({
+            targets: this.gameOverFoamEmitter,
+            alpha: 1,
+            duration: 1000,
+            ease: 'Quad.easeInOut',
+            delay: 1000,
+        });   
+
+        Utils.switchSprite(this.finalTimeText, true);
+        this.finalTimeText.scale = 0;
+
+        this.tweens.add({
+            targets: this.finalTimeText,
+            scale: 1,
+            duration: 4000,
+            ease: 'Elastic.Out',
+            delay: 3000
+        });
 
     }
 
@@ -518,16 +590,17 @@ export default class WashGame extends Phaser.Scene {
 
     private isGamingStep() {
         const localThis = this;
-        return ![GameStep.INTRO, GameStep.STARTING, GameStep.GAME_OVER].find( s => { localThis.hasStep(s) });
+        for (const s of [GameStep.INTRO, GameStep.STARTING, GameStep.GAME_OVER]) {
+            if (this.hasStep(s))
+                return false;
+        }
+        return true;
     }
 
 
     private updateGameTime() {
-        if (!this.startTime || !this.timeText || !this.isGamingStep()) { 
-            //console.log("no update time");
+        if (!this.startTime || !this.timeText || !this.isGamingStep())
             return;
-        }
-
 
         this.deltaTime = (new Date().getTime() - this.startTime);
         const sDeltaTime = Math.floor(this.deltaTime / 1000);
@@ -536,8 +609,9 @@ export default class WashGame extends Phaser.Scene {
         const seconds = Math.floor(sDeltaTime - minutes * 60);
         const milli = Math.floor((this.deltaTime - sDeltaTime * 1000) / 10);
 
-        const formatValue = val => (val < 10 ? '0' : '') + String(val);
+        const formatValue = (val, twoDigits = true) => (twoDigits && val < 10 ? '0' : '') + String(val);
         this.timeText.setText(formatValue(minutes) + ':' + formatValue(seconds) + ':' + formatValue(milli));
+        this.finalTimeText.setText( 'Bravo!\nVaisselle propre en\n' + formatValue(minutes, false) + 'm ' + formatValue(seconds, false) + 's ' + formatValue(milli));
     }
 
 

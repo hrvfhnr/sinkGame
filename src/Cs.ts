@@ -35,7 +35,9 @@ export default class Cs {
         PLATE: 2,
         FG: 3,
         SPONGE: 4,
-        FX: 5
+        FX: 5,
+        GAME_OVER_0: 6,
+        GAME_OVER_1: 7
     };
 
 

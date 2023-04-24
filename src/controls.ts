@@ -26,11 +26,12 @@ export default class Controls {
         }, this);
 
 
-        /*
+        
         this.input.keyboard.on('keydown-C', event => {
-            this.game.cleanChecker.check();
+            this.game.startGameOver();
         }, this);
-        */
+        
+        
     }
 
     private onMouseMove(pointer) {
@@ -43,6 +44,9 @@ export default class Controls {
 
 
     public getLock(pointer) {
+        if (this.game.hasStep(GameStep.GAME_OVER))
+            return;
+
         if (this.game.hasStep(GameStep.INTRO)) {
             if (!this.game.introLock) {
                 this.sponge.bumpFromLogo(pointer.x, pointer.y);
