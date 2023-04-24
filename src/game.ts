@@ -45,6 +45,12 @@ export default class WashGame extends Phaser.Scene {
     sinkPartShape: Phaser.Geom.Rectangle;
     sinkFoamEmitter: Phaser.GameObjects.Particles.ParticleEmitter;
 
+    foamContainer: Phaser.GameObjects.Container;
+    foamDeadZone: Phaser.Geom.Circle; 
+    currentDeathZone: Phaser.GameObjects.Particles.Zones.DeathZone;
+    foamShape: Phaser.Geom.Polygon;
+    foamPartEmitter: Phaser.GameObjects.Particles.ParticleEmitter;
+
     introLock: boolean;
 
 
@@ -110,7 +116,8 @@ export default class WashGame extends Phaser.Scene {
         //particles
         this.load.image('whiteSparkles', 'assets/particles/whiteSparkles.png');
         this.load.atlas('foams', 'assets/particles/foams.png', 'assets/particles/foam.json');
-
+        this.load.image('scrapeShapeEmitter', 'assets/particles/scrapeShapeEmitter.png');
+        this.load.image('spongeOverShapeEmmiter', 'assets/particles/spongeOverShapeEmmiter.png');
 
         //plates
         for (let i = 0; i < 7; i++)
@@ -184,7 +191,6 @@ export default class WashGame extends Phaser.Scene {
         this.controls = new Controls();
         this.controls.init(this, this.sponge);
         this.initFonts();
-        
 
         this.txt_startLogo = this.add.sprite(Cs.SCREEN_SIZE.WIDTH / 2 - 200, 400, 'start_logo');
         this.txt_startLogo.alpha = 0;
@@ -267,7 +273,60 @@ export default class WashGame extends Phaser.Scene {
         });
         this.addToLayer(this.sinkFoamEmitter, Cs.LAYER.SINK);
 
+        //plate foam
+
+        this.foamContainer = this.add.container(0, 0);
+        this.addToLayer(this.foamContainer, Cs.LAYER.FOAM);
+        this.foamDeadZone = new Phaser.Geom.Circle(Cs.PLATE_POS.X, Cs.PLATE_POS.Y, 256);
+        this.foamDeadZoneConfig = {
+            type: 'onLeave',
+            source: this.foamDeadZone
+        };
+
+        this.foamShape = new Phaser.Geom.Polygon([
+            0, 0,
+            36,-9,
+            57, 3,
+            56, 40,
+            24, 112,
+            -12, 121,
+            -33, 109,
+             -43, 73]);
+        this.foamPartEmitter = this.add.particles(-0, -0, 'foams', {
+            frame: ['foam_0', 'foam_1', 'foam_2', 'bubble_1'],
+            lifespan:  { min: 1200, max:2000 },
+            speed:     1,
+            alpha:     { start: 1, end: 0, ease: 'Quad.easeOut' },
+            scale:     { min: 0.5, max: 1 },
+            emitting: true,
+            quantity: 1,
+            emitZone:  { type: 'edge', source: this.foamShape, quantity: 15 },
+            //duration: 200
+        });
+        this.foamPartEmitter.alpha = 0;
+        
+        this.foamContainer.add(this.foamPartEmitter);
+
     }
+
+    public startFoam() {
+        if (!this.sponge || !this.hasStep(GameStep.PLAY)) return;
+        this.foamPartEmitter.alpha = 1;
+        this.foamPartEmitter.startFollow(this.sponge);
+        this.currentDeathZone = this.foamPartEmitter.addDeathZone({
+            type: 'onLeave',
+            source: this.foamDeadZone
+        });
+    }
+
+    public  stopFoam() {
+        if (!this.foamPartEmitter) return;
+        
+        this.foamPartEmitter.stopFollow();
+        this.foamPartEmitter.removeDeathZone(this.currentDeathZone);
+    }
+
+
 
 
     public switchGameOverParticles(active: boolean) {
@@ -345,7 +404,8 @@ export default class WashGame extends Phaser.Scene {
             Difficulty.EASY,
             Difficulty.STANDARD,
             Difficulty.STANDARD,
-        Difficulty.HARD];
+            Difficulty.HARD
+        ];
 
         for(const diff of diffs.reverse()) {
             const plate = new Plate(this, (this.plates.length === 4) ? 0 : Utils.getRandomInt(7));
@@ -363,32 +423,6 @@ export default class WashGame extends Phaser.Scene {
 
     update(time: number, delta: number): void {
         this.updateGameTime();
-
-        /*
-        switch(this.step) {
-            case GameStep.INTRO:
-
-                break;
-            case GameStep.STARTING:
-
-                break;
-            case GameStep.PLAY:
-
-                break;
-            case GameStep.RINSE:
-
-                break;
-            case GameStep.CLEAN_CHECK:
-
-                break;
-            case GameStep.NEXT_PLATE:
-
-                break;
-                case GameStep.GAME_OVER:
-
-                break;
-        }
-        */
     }
 
     public prepareStart() {
@@ -546,6 +580,13 @@ export default class WashGame extends Phaser.Scene {
         this.time.delayedCall(initialDelay + downTime * 0.8, () => { localThis.sinkFoamEmitter.start(); });
 
         this.tweens.add({
+            targets: this.foamContainer,
+            y: 550,
+            duration: downTime,
+            ease: 'Back.In',
+            delay: initialDelay,
+        });
+        this.tweens.add({
             targets: plate.sp,
             y: Cs.PLATE_POS.Y + 550,
             rotation: 0,
@@ -573,6 +614,16 @@ export default class WashGame extends Phaser.Scene {
             onComplete: () => { plate.rinseResult(); }
         });   
     }
+
+    public upFoamContainer(time: number, delay = 0) {
+        this.tweens.add({
+            targets: this.foamContainer,
+            y: 0,
+            duration: time,
+            ease: 'Back.Out',
+            delay: delay
+       });
+}
 
     public checkGameOver(): boolean {
         return this.plates.length <= 1 && this.cleanChecker.isClean;
@@ -613,6 +664,16 @@ export default class WashGame extends Phaser.Scene {
 
     public setStep(s: GameStep) {
         this.step = s;
+
+        switch(this.step) {
+            case GameStep.PLAY:
+                if (this.input.activePointer.isDown)
+                    this.startFoam();
+                break;
+            default:
+                this.stopFoam();
+                break;
+        }
     }
 
     private isGamingStep() {

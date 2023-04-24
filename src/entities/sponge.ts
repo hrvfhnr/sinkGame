@@ -4,6 +4,7 @@ import Cs from '../cs';
 
 export default class Sponge extends Phaser.GameObjects.Sprite {
     game: WashGame;
+    bumpTween: Phaser.Tweens.Tween;    
 
     constructor (wGame: WashGame) {
         super(wGame, -200, Cs.SCREEN_SIZE.HEIGHT / 2 + 50, 'sponge');
@@ -35,26 +36,58 @@ export default class Sponge extends Phaser.GameObjects.Sprite {
         }
     }
 
+
+    private resetCurrentBumpTween() {
+        if (!this.bumpTween) return;
+
+        this.bumpTween.stop();
+        this.bumpTween.destroy();
+        this.bumpTween = null;
+    }
+
     public bump(nx: number, ny: number) {
+        this.resetCurrentBumpTween();
         this.scale = 0.9;
-        //ts-ignore
-        this.game.tweens.add({
+        
+        const localThis = this;
+
+        this.bumpTween = this.game.tweens.add({
+            targets: this,
+            scale: 1.0,
+            duration: 1000,
+            ease: 'Back.Out',
+            yoyo: false,
+            onComplete: () => { localThis.resetCurrentBumpTween(); }
+        })
+    }
+
+
+    public unbump(nx: number, ny: number) {
+        this.resetCurrentBumpTween();
+        this.scale = 1.1;
+
+        const localThis = this;
+        
+        this.bumpTween = this.game.tweens.add({
             targets: this,
             scale: 1.0,
             duration: 1000,
             ease: 'Elastic.Out',
             yoyo: false,
+            onComplete: () => { localThis.resetCurrentBumpTween(); }
         })
     }
 
 
     public bumpFromLogo(nx: number, ny: number) {
-        //ts-ignore
-        this.game.tweens.add({
+        const localThis = this;
+        
+        this.bumpTween = this.game.tweens.add({
             targets: this,
-            scale: 1.0,
+            scale: 1.1,
             duration: 800,
             ease: 'Bounce.Out',
+            onComplete: () => { localThis.resetCurrentBumpTween(); }
         });
         this.game.tweens.add({
             targets: this,

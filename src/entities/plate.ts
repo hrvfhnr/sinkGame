@@ -21,11 +21,7 @@ export default class Plate {
     txt_cleanOk: Phaser.GameObjects.Sprite;
 
     partShape: Phaser.Geom.Circle;
-    sparklesParts: Phaser.GameObjects.Particles.Particle;
     sparklesEmitter: Phaser.GameObjects.Particles.ParticleEmitter;
-    
-
-    //foam: Phaser.GameObjects.Container;
 
     currentTween: Phaser.Tweens.Tween;
 
@@ -47,6 +43,7 @@ export default class Plate {
 
         this.bgPlate = this.game.add.sprite(plateOffsetInit.x, plateOffsetInit.y, 'plate_' + String(this.plateId));
         this.stains = this.game.add.renderTexture(0, 0, Cs.STAIN_RENDER_SIZE, Cs.STAIN_RENDER_SIZE);
+
         this.spTexts = this.game.add.container(0, -20);
 
         this.sp.add([this.bgPlate, this.stains, this.spTexts]);
@@ -75,6 +72,7 @@ export default class Plate {
         });
         this.sp.add(this.sparklesEmitter);
     }
+
 
     public initCompletionText() {
         this.txt_completion = this.game.add.text(0, 0, '00,00%', { fontFamily: 'Double_Bubble_shadow', fontSize: 92, color: '#FF4F00' });
@@ -184,6 +182,7 @@ export default class Plate {
             duration: upTime,
             ease: 'Back.Out'
         });
+        this.game.upFoamContainer(upTime);
 
         
         Utils.switchSprite(this.spTexts, true);
@@ -291,7 +290,7 @@ export default class Plate {
         //force super brush to help on last dirty pixels
         if (this.game.cleanChecker.canBeLastScraped) {
             brushType = BrushType.SUPER_BRUSH;
-            console.log("USE SUPER BRUSH");
+            //console.log("USE SUPER BRUSH");
         }
         
         this.stains.erase(this.game.getBrushByType(brushType), localPos.x, localPos.y);
