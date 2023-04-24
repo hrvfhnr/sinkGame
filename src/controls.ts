@@ -29,7 +29,15 @@ export default class Controls {
         
         this.input.keyboard.on('keydown-C', event => {
             //this.game.startGameOver();
-            this.game.sinkFoamEmitter.start();
+            //this.game.sinkFoamEmitter.start();
+        }, this);
+
+
+        this.input.keyboard.on('keydown-M', event => {
+            if (this.game.hasStep(GameStep.GAME_OVER)) {
+                this.game.gameOverFoamEmitter.stop();
+                this.game.gameOverFoamEmitter.killAll();
+            }
         }, this);
         
         
