@@ -61,8 +61,8 @@ export default class Controls {
                 this.sponge.bumpFromLogo(pointer.x, pointer.y);
                 this.game.hideLogo();
 
-                //this.game.prepareStart();
-                this.game.startGame();
+                this.game.prepareStart();
+                //this.game.startGame();
                 
                 this.input.mouse.requestPointerLock();
             }
