@@ -38,8 +38,12 @@ export default class WashGame extends Phaser.Scene {
 
     redFail: Phaser.GameObjects.Image;
 
+    //particles systems
     gameOverPartShape: Phaser.Geom.Rectangle;
     gameOverFoamEmitter: Phaser.GameObjects.Particles.ParticleEmitter;
+
+    sinkPartShape: Phaser.Geom.Rectangle;
+    sinkFoamEmitter: Phaser.GameObjects.Particles.ParticleEmitter;
 
     introLock: boolean;
 
@@ -186,12 +190,14 @@ export default class WashGame extends Phaser.Scene {
         this.txt_startLogo.alpha = 0;
         const localThis = this;
 
+        const initialDelay = 800;
+
         this.tweens.add({
             targets: this.sponge,
             x: Cs.SCREEN_SIZE.WIDTH / 2,
             duration: 500,
             ease: 'Back.Out',
-            delay: 500
+            delay: initialDelay
         });
 
         this.tweens.add({
@@ -199,7 +205,7 @@ export default class WashGame extends Phaser.Scene {
             x: Cs.SCREEN_SIZE.WIDTH / 2,
             duration: 750,
             ease: 'Back.Out',
-            delay: 600
+            delay: initialDelay + 100
             onComplete: () => {
                 localThis.introLock = false;
             }
@@ -209,7 +215,7 @@ export default class WashGame extends Phaser.Scene {
             alpha: 1,
             duration: 750,
             ease: 'Sine.easeInOut',
-            delay: 600
+            delay: initialDelay + 100
         });
     }
 
@@ -218,7 +224,7 @@ export default class WashGame extends Phaser.Scene {
         //gameOver background
         this.gameOverPartShape = new Phaser.Geom.Rectangle(0, Cs.SCREEN_SIZE.HEIGHT * 0.5, Cs.SCREEN_SIZE.WIDTH, Cs.SCREEN_SIZE.HEIGHT * 1.5);
         this.gameOverFoamEmitter = this.add.particles(0, 0, 'foams', {
-            frame: ['foam_0', 'foam_1']
+            frame: ['foam_0', 'foam_1'],
             lifespan:  18000,
             particleBringToTop: false,
             gravityY: -4,
@@ -229,7 +235,6 @@ export default class WashGame extends Phaser.Scene {
             emitting: false,
             quantity: 1,
             emitZone:  { type: 'random', source: this.gameOverPartShape, quantity: 1 },
-            //duration: 300
         });
         this.addToLayer(this.gameOverFoamEmitter, Cs.LAYER.GAME_OVER_0);
 
@@ -240,6 +245,27 @@ export default class WashGame extends Phaser.Scene {
         this.time.delayedCall(13000, () => {
             localThis.gameOverFoamEmitter.pause();
         });
+
+
+        //sink bubbles
+        this.sinkPartShape = new Phaser.Geom.Rectangle(360, 600, 630, 70);
+        this.sinkFoamEmitter = this.add.particles(0, 0, 'foams', {
+            frame: ['foam_1', 'foam_2', 'bubble_0', 'bubble_1', 'foam_1', 'bubble_0', 'bubble_1', 'bubble_2', 'bubble_2'],
+            lifespan:  {min: 1500, max: 3000},
+            speedY: { min: -15, max : -60 },
+            speedX: {min: -20, max: 20 },
+            rotate: { min: -90, max : 90 },
+            //angle: {min: -180, max:  180 },
+            //accelerationX: 0.97,
+            accelerationY: { min: 1.01, max: 1.04 },
+            scale:      { min: 0.7, max: 1.0},
+            alpha:      { min: 0.7, max: 1.0},
+            emitting: false,
+            quantity: 1,
+            emitZone:  { type: 'random', source: this.sinkPartShape, quantity: 2},
+            duration: 530
+        });
+        this.addToLayer(this.sinkFoamEmitter, Cs.LAYER.SINK);
 
     }
 
@@ -263,7 +289,7 @@ export default class WashGame extends Phaser.Scene {
                 localThis.addToLayer(localThis.timeText, Cs.LAYER.FX);
                 localThis.finalTimeText = localThis.add.text(Cs.SCREEN_SIZE.WIDTH / 2, Cs.SCREEN_SIZE.HEIGHT / 2, 
                     'Bravo!\nVaisselle propre\nen\n' + '1min 23s 03', 
-                    { fontFamily: 'Double_Bubble_shadow', fontSize: 64, color: '#FF4F00', align: 'center' });
+                    { fontFamily: 'Double_Bubble_shadow', fontSize: 84, color: '#FF4F00', align: 'center' });
                 localThis.finalTimeText.setOrigin(0.5);
                 localThis.addToLayer(localThis.finalTimeText, Cs.LAYER.GAME_OVER_1);
                 Utils.switchSprite(localThis.finalTimeText, false);
@@ -517,6 +543,7 @@ export default class WashGame extends Phaser.Scene {
             delay: 150,
         });
 
+        this.time.delayedCall(initialDelay + downTime * 0.8, () => { localThis.sinkFoamEmitter.start(); });
 
         this.tweens.add({
             targets: plate.sp,
@@ -563,7 +590,7 @@ export default class WashGame extends Phaser.Scene {
             alpha: 1,
             duration: 1000,
             ease: 'Quad.easeInOut',
-            delay: 1000,
+            delay: 1500,
         });   
 
         Utils.switchSprite(this.finalTimeText, true);
@@ -574,7 +601,7 @@ export default class WashGame extends Phaser.Scene {
             scale: 1,
             duration: 4000,
             ease: 'Elastic.Out',
-            delay: 3000
+            delay: 3500
         });
 
     }

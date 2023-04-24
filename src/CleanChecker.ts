@@ -83,14 +83,11 @@ export default class CleanChecker {
     public check() {
         if (!this.stains) return;
 
-        console.log('start check');
-
         this.isClean = false;
         const localThis = this;
 
         const onFullSnapchot = function(image: HTMLImageElement) {
             const startTime = new Date();
-            console.log(startTime);
 
             localThis.checkCanvas.clear();
             localThis.checkCanvas.draw(0, 0, image, true);
@@ -116,14 +113,17 @@ export default class CleanChecker {
             avgAlpha = countAlpha ? (avgAlpha / countAlpha) : 0;
 
             const endTime = new Date();
+            /*
             console.log(endTime);
             console.log('stillDirty:' + stillDirty.length);
-            
+            */
             localThis.cleaningPercent = Number((((localThis.totalDirty - stillDirty.length) / localThis.totalDirty) * 100).toFixed(2));
 
+            /*
             console.log('cleanCompletion: ' + localThis.cleaningPercent + '%');
             console.log('MAX ALPHA : ' + maxAlpha);
             console.log('AVG ALPHA : ' + avgAlpha);
+            */
             localThis.dirtyPixels = stillDirty;
 
             localThis.canBeLastScraped = maxAlpha <= CleanChecker.LAST_SCRAPE_MAX_ALPHA && stillDirty.length <= CleanChecker.LAST_SCRAPE_MAX_DIRTY_PIXELS;
