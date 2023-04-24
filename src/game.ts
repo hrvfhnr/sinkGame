@@ -548,7 +548,7 @@ export default class WashGame extends Phaser.Scene {
     }
 
     public checkGameOver(): boolean {
-        return this.plates.length < 1 && this.cleanChecker.isClean;
+        return this.plates.length <= 1 && this.cleanChecker.isClean;
     }
 
     public startGameOver() {
