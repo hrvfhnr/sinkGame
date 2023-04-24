@@ -33,11 +33,12 @@ export default class Cs {
         BG_0: 0,
         BG_1: 1,
         PLATE: 2,
-        FG: 3,
-        SPONGE: 4,
-        FX: 5,
-        GAME_OVER_0: 6,
-        GAME_OVER_1: 7
+        SINK: 3,
+        FG: 4,
+        SPONGE: 5,
+        FX: 6,
+        GAME_OVER_0: 7,
+        GAME_OVER_1: 8
     };
 
 
