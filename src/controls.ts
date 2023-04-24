@@ -16,6 +16,7 @@ export default class Controls {
         this.input = this.game.input;
 
         this.input.on('pointerdown', this.getLock, this);
+        this.input.on('pointerup', this.release, this);
         this.input.on('pointermove', this.onMouseMove, this);
         this.input.keyboard.on('keydown-Q', this.releaseLock, this);
         this.input.keyboard.on('keydown-SPACE', this.rinse, this);
@@ -45,11 +46,21 @@ export default class Controls {
 
     private onMouseMove(pointer) {
         if (this.input.mouse.locked) {
-            if (pointer.isDown)
+            if (pointer.isDown) {
                 this.game.getCurrentPlate().scrape(this.sponge.x, this.sponge.y);
+                this.game.startFoam();
+            }
             this.sponge.move(pointer.movementX, pointer.movementY);
         }
     };
+
+
+    public release(pointer) {
+        this.game.stopFoam();
+        if (this.input.mouse.locked) {
+            this.sponge.unbump(pointer.x, pointer.y);
+        }
+    }
 
 
     public getLock(pointer) {
@@ -67,8 +78,8 @@ export default class Controls {
                 this.input.mouse.requestPointerLock();
             }
         } else {
-            if (!this.input.mouse.locked)
-                this.sponge.bump(pointer.x, pointer.y);
+            //if (!this.input.mouse.locked)
+            this.sponge.bump(pointer.x, pointer.y);
             this.input.mouse.requestPointerLock();
         }
     }

@@ -33,15 +33,20 @@ X rinse & check :
     X remontée avec le pourcentage de complétion
         X fail
         X success
-- game over avec résultat final
+X game over avec résultat final
     => particleEmitter de mousse sur tout l'écran ? 
 - réactiver le décompte de départ
 
 BONUS: 
 X sparkles sur le completion success
 - mousse quand on gratte ? 
-- mousse qui dépasse de l'évier sur le yoyo de rinse ?
-- mini assiettes pour voir ce qu'il reste à faire + clairement
+    X cale la mousse sur un layer sous l'éponge
+    X ajouter une deadZone inside avec un geom.Circle
+    - au rinse, on fait aussi descendre le foamLayer avec l'assiette
+    X start/stopFollow sur le game.setStep
+        X couper sur la sortie de PLAY
+        X reprendre sur PLAY si pointer.isDown
+X mousse qui dépasse de l'évier sur le yoyo de rinse ?
 
 - anim d'eau dans l'evier
 - robinet qui goutte
