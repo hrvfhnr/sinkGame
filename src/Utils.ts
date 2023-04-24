@@ -20,10 +20,10 @@ export default class Utils {
 
         this.seed = String(Math.floor(Math.random() * 9999999));
 
-        this.seed = '8112994'; // weekly forcing
+        this.seed = '8112994'; // force for weekly
         this.srand= new Rand(this.seed);
 
-        console.log('seed: ' + this.seed);
+        //console.log('seed: ' + this.seed);
     }
 
 
