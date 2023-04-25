@@ -10,11 +10,11 @@ type DirtyPixel = {
 
 export default class CleanChecker {
 
-    static CLEAN_MAX_ALPHA = 55;
-    static CLEAN_MAX_DIRTY_PIXELS = 100;
+    static CLEAN_MAX_ALPHA = 65;
+    static CLEAN_MAX_DIRTY_PIXELS = 120;
 
-    static LAST_SCRAPE_MAX_ALPHA = 80;
-    static LAST_SCRAPE_MAX_DIRTY_PIXELS = 160;
+    static LAST_SCRAPE_MAX_ALPHA = 90;
+    static LAST_SCRAPE_MAX_DIRTY_PIXELS = 180;
 
     static CLEAN_MIN_ALPHA = 20;
 
